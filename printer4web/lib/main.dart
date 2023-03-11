@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'printerTabs.dart';
+import 'printer_tabs.dart';
 
 void main() {
   runApp(const MyApp());

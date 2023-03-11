@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
-import 'printerInformation.dart';
+import 'printer_information.dart';
+import 'housing_information.dart';
+import 'prusalink.dart';
+import 'settings.dart';
 
 class PrinterTabs extends StatefulWidget {
   const PrinterTabs({super.key, required this.title});
@@ -44,9 +47,9 @@ class _PrinterTabsState extends State<PrinterTabs> {
           children: [
             HomePage(title: "Home"),
             PrinterInformation(title: "Printer information"),
-            Icon(Icons.directions_bike),
-            Icon(Icons.directions_bike),
-            Icon(Icons.directions_bike),
+            HousingInformation(title: "Housing Information"),
+            Prusalink(title: "Prusalink"),
+            Settings(title: "Settings"),
           ],
         ),
       ),
