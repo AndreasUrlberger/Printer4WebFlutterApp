@@ -38,6 +38,9 @@ dependencies:
   flutter_mjpeg: ^2.0.3
   webviewx: ^0.2.1
   webview_flutter: ^2.8.0
+  flutter_charts: ^0.5.1
+  intl: ^0.18.0
+  http_auth: ^1.0.1
 
 dev_dependencies:
   flutter_test:

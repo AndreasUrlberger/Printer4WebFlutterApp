@@ -4,9 +4,7 @@ import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:webviewx/webviewx.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key, required this.title});
-
-  final String title;
+  const HomePage({super.key});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -154,6 +152,9 @@ class _MjgWebViewState extends State<MjpgWebView> {
       },
       dartCallBacks: {
         DartCallback(name: "onImageLoadError", callBack: onImageLoadError)
+      },
+      onPageFinished: (src) {
+        print("onPageFinished: $src");
       },
       width: 999999,
       height: 999999,

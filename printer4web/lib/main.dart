@@ -19,9 +19,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         primarySwatch: Colors.amber,
       ),
-      home: const PrinterTabs(
-        title: "PrinterTabs",
-      ),
+      home: const PrinterTabs(),
     );
   }
 }

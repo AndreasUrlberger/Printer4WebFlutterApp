@@ -6,9 +6,7 @@ import 'prusalink.dart';
 import 'settings.dart';
 
 class PrinterTabs extends StatefulWidget {
-  const PrinterTabs({super.key, required this.title});
-
-  final String title;
+  const PrinterTabs({super.key});
 
   @override
   State<PrinterTabs> createState() => _PrinterTabsState();
@@ -45,11 +43,11 @@ class _PrinterTabsState extends State<PrinterTabs> {
         ),
         body: const TabBarView(
           children: [
-            HomePage(title: "Home"),
-            PrinterInformation(title: "Printer information"),
-            HousingInformation(title: "Housing Information"),
-            Prusalink(title: "Prusalink"),
-            Settings(title: "Settings"),
+            HomePage(),
+            PrinterInformation(),
+            HousingInformation(),
+            Prusalink(),
+            Settings(),
           ],
         ),
       ),

@@ -2,15 +2,10 @@
 
 Printer app for phone and web
 
-## Getting Started
+## Adding credentials
 
-This project is a starting point for a Flutter application.
+Add a file named keys.dart under lib/auth.
+It contains:
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+const prusalinkUsername =  "...";
+const prusalinkPassword =  "...";
