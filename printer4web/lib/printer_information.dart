@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_charts/flutter_charts.dart';
 import 'package:intl/intl.dart';
+import 'package:printer4web/custom_printer_chart.dart';
 
 import 'prusalink_api.dart';
 
@@ -13,30 +12,35 @@ class PrinterInformation extends StatefulWidget {
   State<PrinterInformation> createState() => _PrinterInformationState();
 }
 
-void onStatusSwitchChanged(bool value) {
-  // TODO Implement.
-}
-
-void onPreheatClicked() {
-  // TODO Implement.
-}
-
-void onCoolDownClicked() {
-  // TODO Implement.
-}
-
 class _PrinterInformationState extends State<PrinterInformation> {
+  static const num timerPeriod = 1;
+  static const num historySeconds = 20;
+  static const num numHistoryElements = historySeconds / timerPeriod;
+
   bool status = true;
   String filename = "Dateiname";
   double nozzleTempWanted = 240.0;
   double nozzleTempHave = 237.2;
   double heatbedTempWanted = 90.0;
   double heatbedTempHave = 81.3;
-  late Timer timer;
+  List<double> temperatureHistory = [];
 
+  late Timer timer;
   final DateFormat dateFormat = DateFormat('kk:mm');
-  DateTime printCompleteAt =
-      DateTime.now().add(const Duration(hours: 1, minutes: 28));
+  DateTime printCompleteAt = DateTime.now().add(const Duration(hours: 1, minutes: 28));
+
+  void onPreheatClicked() {
+    // TODO Implement.
+  }
+
+  void onStatusSwitchChanged(bool value) {
+    // TODO Implement.
+  }
+
+  void onCoolDownClicked() {
+    // TODO Implement.
+  }
+
 
   @override
   void initState() {
@@ -45,7 +49,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
     prusaDataRequest(null);
 
     timer = Timer.periodic(
-      const Duration(seconds: 3),
+      Duration(seconds: timerPeriod.round()),
       prusaDataRequest,
     );
   }
@@ -57,11 +61,9 @@ class _PrinterInformationState extends State<PrinterInformation> {
   }
 
   void prusaDataRequest(Timer? _) {
-    print("Called timer iteration");
     makeRequest().then(
       (prusalinkData) {
         if (prusalinkData != null) {
-          print("Prusalink data successfully fetched.");
           setState(() {
             nozzleTempWanted = prusalinkData.temperature.nozzle.targetTemp;
             nozzleTempHave = prusalinkData.temperature.nozzle.actualTemp;
@@ -71,6 +73,13 @@ class _PrinterInformationState extends State<PrinterInformation> {
         } else {
           print("Prusalink data could not get fetched.");
         }
+        // Just use the same data again.
+        setState(() {
+          temperatureHistory.add(nozzleTempHave);
+          if (temperatureHistory.length > numHistoryElements) {
+            temperatureHistory.removeAt(0);
+          }
+        });
       },
     );
   }
@@ -86,10 +95,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Status"),
-                Switch(value: status, onChanged: onStatusSwitchChanged)
-              ],
+              children: [const Text("Status"), Switch(value: status, onChanged: onStatusSwitchChanged)],
             ),
             const Divider(
               color: Colors.grey,
@@ -116,10 +122,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(filename),
-                    Text("Fertig um ${dateFormat.format(printCompleteAt)}")
-                  ],
+                  children: [Text(filename), Text("Fertig um ${dateFormat.format(printCompleteAt)}")],
                 )
               ],
             ),
@@ -135,34 +138,24 @@ class _PrinterInformationState extends State<PrinterInformation> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Row(
-                  children: [
-                    const Icon(Icons.pin_drop),
-                    Text(
-                        "${nozzleTempHave.round()}/${nozzleTempWanted.round()}°C"),
-                  ],
+                  children: [const Icon(Icons.pin_drop), Text("${nozzleTempHave.round()}/${nozzleTempWanted.round()}°C")],
                 ),
                 Row(
-                  children: [
-                    const Icon(Icons.hot_tub),
-                    Text(
-                        "${heatbedTempHave.round()}/${heatbedTempWanted.round()}°C"),
-                  ],
+                  children: [const Icon(Icons.hot_tub), Text("${heatbedTempHave.round()}/${heatbedTempWanted.round()}°C")],
                 )
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
-                ElevatedButton(
-                    onPressed: onPreheatClicked, child: Text("Preheat")),
-                ElevatedButton(
-                    onPressed: onPreheatClicked, child: Text("Cool Down")),
+              children: [
+                ElevatedButton(onPressed: onPreheatClicked, child: const Text("Preheat")),
+                ElevatedButton(onPressed: onPreheatClicked, child: const Text("Cool Down")),
               ],
             ),
             const SizedBox(height: 16),
             AspectRatio(
               aspectRatio: 16.0 / 9.0,
-              child: chartToRun(),
+              child: chartToRun(temperatureHistory),
             )
           ],
         ),
@@ -171,24 +164,6 @@ class _PrinterInformationState extends State<PrinterInformation> {
   }
 }
 
-Widget chartToRun() {
-  LabelLayoutStrategy? xContainerLabelLayoutStrategy;
-  ChartData chartData;
-  ChartOptions chartOptions = const ChartOptions(
-    legendOptions: LegendOptions(isLegendContainerShown: false),
-  );
-  // Example shows a demo-type data generated randomly in a range.
-  chartData = RandomChartData.generated(
-      chartOptions: chartOptions, numDataRows: 1, numXLabels: 4);
-  var lineChartContainer = LineChartTopContainer(
-    chartData: chartData,
-    xContainerLabelLayoutStrategy: xContainerLabelLayoutStrategy,
-  );
-
-  var lineChart = LineChart(
-    painter: LineChartPainter(
-      lineChartContainer: lineChartContainer,
-    ),
-  );
-  return lineChart;
+Widget chartToRun(List<double> history) {
+  return PrinterChart(history);
 }

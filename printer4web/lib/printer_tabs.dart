@@ -41,13 +41,13 @@ class _PrinterTabsState extends State<PrinterTabs> {
             ],
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            HomePage(),
-            PrinterInformation(),
+            const HomePage(),
+            const PrinterInformation(),
             HousingInformation(),
-            Prusalink(),
-            Settings(),
+            const Prusalink(),
+            const Settings(),
           ],
         ),
       ),

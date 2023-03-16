@@ -1,8 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_charts/flutter_charts.dart';
+import 'package:printer4web/printer_chart.dart';
+import 'package:printer4web/printer_communication.dart';
 
 class HousingInformation extends StatefulWidget {
-  const HousingInformation({super.key});
+  HousingInformation({super.key});
+
+  PrinterConnection? connection;
+
 
   @override
   State<HousingInformation> createState() => _HousingInformationState();
@@ -21,16 +27,33 @@ class _HousingInformationState extends State<HousingInformation> {
   double tempOverallWant = 20;
   double fanSpeed = 0.8;
 
-  List<DropdownMenuItem<int>> profiles = [
-    const DropdownMenuItem(
-      value: 0,
-      child: Text("PETG"),
-    ),
-    const DropdownMenuItem(
-      value: 1,
-      child: Text("ABS"),
-    ),
+  static const int timerPeriod = 3;
+  Timer ?timer;
+
+
+  List<DropdownMenuItem<int>>
+
+  profiles = [
+    const DropdownMenuItem(value: 0, child: Text("PETG"),),
+    const DropdownMenuItem (value: 1, child: Text("ABS"),),
   ];
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    PrinterConnection.create("192.168.178.143", 1933).then((connection) => widget.connection = connection);
+
+    Timer.periodic(Duration(seconds: timerPeriod.round()), sendStatusRequest
+    );
+  }
+
+  void sendStatusRequest(Timer _){
+    print("clicked preheat");
+    widget.connection?.sendStatusRequest();
+    print("connection is ${widget.connection}");
+  }
 
   void onStatusSwitchChanged(bool value) {
     setState(() {
@@ -159,23 +182,6 @@ class _HousingInformationState extends State<HousingInformation> {
 }
 
 Widget chartToRun() {
-  LabelLayoutStrategy? xContainerLabelLayoutStrategy;
-  ChartData chartData;
-  ChartOptions chartOptions = const ChartOptions(
-    legendOptions: LegendOptions(isLegendContainerShown: false),
-  );
-  // Example shows a demo-type data generated randomly in a range.
-  chartData = RandomChartData.generated(
-      chartOptions: chartOptions, numDataRows: 1, numXLabels: 4);
-  var lineChartContainer = LineChartTopContainer(
-    chartData: chartData,
-    xContainerLabelLayoutStrategy: xContainerLabelLayoutStrategy,
-  );
-
-  var lineChart = LineChart(
-    painter: LineChartPainter(
-      lineChartContainer: lineChartContainer,
-    ),
-  );
-  return lineChart;
+  //List<double> list = [19.4, 20.3, 13.0, 3.9];
+  return LineChartSample10();
 }
