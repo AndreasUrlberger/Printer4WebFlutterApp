@@ -47,8 +47,8 @@ class _LineChartSample10State extends State<LineChartSample10> {
             padding: const EdgeInsets.only(bottom: 24.0),
             child: LineChart(
               LineChartData(
-                minY: -1,
-                maxY: 1,
+                minY: -1.1,
+                maxY: 1.1,
                 minX: sinPoints.first.x,
                 maxX: sinPoints.last.x,
                 lineTouchData: LineTouchData(enabled: false),

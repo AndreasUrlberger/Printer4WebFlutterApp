@@ -1,34 +1,37 @@
-import 'dart:async';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/custom_printer_chart.dart';
 
-import 'prusalink_api.dart';
-
 class PrinterInformation extends StatefulWidget {
-  const PrinterInformation({super.key});
+  PrinterInformation({super.key, required this.printerInformationState});
+
+  AppPrinterInformationState printerInformationState;
+  final DateFormat dateFormat = DateFormat('kk:mm');
 
   @override
   State<PrinterInformation> createState() => _PrinterInformationState();
 }
 
+class AppPrinterInformationState {
+  static const String defaultPrintName = "Kein laufender Druck";
+  static const double defaultNozzleTempWanted = 0.0;
+  static const double defaultNozzleTempHave = 0.0;
+  static const double defaultHeatbedTempWanted = 0.0;
+  static const double defaultHeatbedTempHave = 0.0;
+  static const int defaultPrintFinishedAt = 0;
+
+  bool prusalinkStatus = false;
+  String printName = defaultPrintName;
+  double nozzleTempWanted = defaultNozzleTempWanted;
+  double nozzleTempHave = defaultNozzleTempHave;
+  double heatbedTempWanted = defaultHeatbedTempWanted;
+  double heatbedTempHave = defaultHeatbedTempHave;
+  int printFinishedAt = defaultPrintFinishedAt;
+  List<FlSpot> temperatureHistory = [];
+}
+
 class _PrinterInformationState extends State<PrinterInformation> {
-  static const num timerPeriod = 1;
-  static const num historySeconds = 20;
-  static const num numHistoryElements = historySeconds / timerPeriod;
-
-  bool status = true;
-  String filename = "Dateiname";
-  double nozzleTempWanted = 240.0;
-  double nozzleTempHave = 237.2;
-  double heatbedTempWanted = 90.0;
-  double heatbedTempHave = 81.3;
-  List<double> temperatureHistory = [];
-
-  late Timer timer;
-  final DateFormat dateFormat = DateFormat('kk:mm');
-  DateTime printCompleteAt = DateTime.now().add(const Duration(hours: 1, minutes: 28));
-
   void onPreheatClicked() {
     // TODO Implement.
   }
@@ -39,49 +42,6 @@ class _PrinterInformationState extends State<PrinterInformation> {
 
   void onCoolDownClicked() {
     // TODO Implement.
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-
-    prusaDataRequest(null);
-
-    timer = Timer.periodic(
-      Duration(seconds: timerPeriod.round()),
-      prusaDataRequest,
-    );
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
-  }
-
-  void prusaDataRequest(Timer? _) {
-    makeRequest().then(
-      (prusalinkData) {
-        if (prusalinkData != null) {
-          setState(() {
-            nozzleTempWanted = prusalinkData.temperature.nozzle.targetTemp;
-            nozzleTempHave = prusalinkData.temperature.nozzle.actualTemp;
-            heatbedTempWanted = prusalinkData.temperature.heatbed.targetTemp;
-            heatbedTempHave = prusalinkData.temperature.heatbed.actualTemp;
-          });
-        } else {
-          print("Prusalink data could not get fetched.");
-        }
-        // Just use the same data again.
-        setState(() {
-          temperatureHistory.add(nozzleTempHave);
-          if (temperatureHistory.length > numHistoryElements) {
-            temperatureHistory.removeAt(0);
-          }
-        });
-      },
-    );
   }
 
   @override
@@ -95,7 +55,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [const Text("Status"), Switch(value: status, onChanged: onStatusSwitchChanged)],
+              children: [const Text("Status"), Switch(value: widget.printerInformationState.prusalinkStatus, onChanged: onStatusSwitchChanged)],
             ),
             const Divider(
               color: Colors.grey,
@@ -122,7 +82,10 @@ class _PrinterInformationState extends State<PrinterInformation> {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [Text(filename), Text("Fertig um ${dateFormat.format(printCompleteAt)}")],
+                  children: [
+                    Text(widget.printerInformationState.printName),
+                    Text("Fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.printerInformationState.printFinishedAt)))}"),
+                  ],
                 )
               ],
             ),
@@ -138,10 +101,16 @@ class _PrinterInformationState extends State<PrinterInformation> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Row(
-                  children: [const Icon(Icons.pin_drop), Text("${nozzleTempHave.round()}/${nozzleTempWanted.round()}°C")],
+                  children: [
+                    const Icon(Icons.pin_drop),
+                    Text("${widget.printerInformationState.nozzleTempHave.round()}/${widget.printerInformationState.nozzleTempWanted.round()}°C")
+                  ],
                 ),
                 Row(
-                  children: [const Icon(Icons.hot_tub), Text("${heatbedTempHave.round()}/${heatbedTempWanted.round()}°C")],
+                  children: [
+                    const Icon(Icons.hot_tub),
+                    Text("${widget.printerInformationState.heatbedTempHave.round()}/${widget.printerInformationState.heatbedTempWanted.round()}°C")
+                  ],
                 )
               ],
             ),
@@ -155,7 +124,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
             const SizedBox(height: 16),
             AspectRatio(
               aspectRatio: 16.0 / 9.0,
-              child: chartToRun(temperatureHistory),
+              child: LineChartExample(history: widget.printerInformationState.temperatureHistory),
             )
           ],
         ),

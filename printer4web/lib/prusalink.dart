@@ -26,6 +26,7 @@ class _PrusalinkState extends State<Prusalink> {
       body: Padding(
         padding: const EdgeInsets.all(8),
         child: WebViewX(
+          javascriptMode: JavascriptMode.unrestricted,
           onWebViewCreated: onWebViewCreated,
           onWebResourceError: onWebError,
           width: 999999,

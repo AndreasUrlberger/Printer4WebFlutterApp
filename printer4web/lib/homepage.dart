@@ -1,13 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
+import 'package:intl/intl.dart';
 import 'package:webviewx/webviewx.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({super.key, required this.homePageState});
+
+  AppHomePageState homePageState;
+
+  final DateFormat dateFormat = DateFormat('kk:mm');
 
   @override
   State<HomePage> createState() => _HomePageState();
+}
+
+class AppHomePageState {
+  static const String defaultPrintName = "Kein laufender Druck";
+  static const int defaultPrintProgress = 0;
+  static const int defaultPrintTimeLeft = 0;
+
+  String printName = defaultPrintName;
+  int printProgress = defaultPrintProgress;
+  int printTimeLeft = defaultPrintTimeLeft;
 }
 
 class _HomePageState extends State<HomePage> {
@@ -16,54 +31,64 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [Text(widget.homePageState.printName), Text("${widget.homePageState.printProgress}%")],
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          LinearProgressIndicator(
+            value: widget.homePageState.printProgress.toDouble() / 100.0,
+            semanticsLabel: 'Print progress indicator',
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [Text("Name_der_Druckdatei"), Text("80%")],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              const LinearProgressIndicator(
-                value: 0.6,
-                semanticsLabel: 'Linear progress indicator',
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [Text("fertig um 17:48"), Text("-1:43h")],
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              AspectRatio(
-                aspectRatio: 16 / 9,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8.0),
-                    child: kIsWeb
-                        ? const MjpgWebView()
-                        : const Mjpeg(
-                            stream:
-                                'http://192.168.178.143:8080/?action=stream',
-                            isLive: true,
-                            error: onMjpgError,
-                            timeout: Duration(seconds: 10),
-                          )
+              Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft)))}"),
+              Text("-${formatDeltaTime(widget.homePageState.printTimeLeft)}"),
+            ],
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: kIsWeb
+                    ? const MjpgWebView()
+                    : const Mjpeg(
+                        stream: 'http://192.168.178.143:8080/?action=stream',
+                        isLive: true,
+                        error: onMjpgError,
+                        timeout: Duration(seconds: 10),
+                      )
 
-                    /*Container(
+                /*Container(
                     color: Colors.black,
                   ),*/
-                    ),
-              )
-            ]),
+                ),
+          )
+        ]),
       ),
     );
   }
+}
+
+String formatDeltaTime(int milliseconds) {
+  Duration duration = Duration(milliseconds: milliseconds);
+  int hours = duration.inHours;
+  int minutes = duration.inMinutes.remainder(60);
+
+  String formattedMinutes = minutes.toString().padLeft(2, '0');
+  String formattedHours = hours.toString();
+
+  return '$formattedHours:${formattedMinutes}h';
 }
 
 Widget onMjpgError(BuildContext context, dynamic error, dynamic stack) {
@@ -120,8 +145,7 @@ class _MjgWebViewState extends State<MjpgWebView> {
 
     // Firefox?
     // document.body.style.scrollbarWidth = "none";
-    webviewController.evalRawJavascript(
-        'document.documentElement.style.overflow = "hidden";');
+    webviewController.evalRawJavascript('document.documentElement.style.overflow = "hidden";');
   }
 
   void onWebError(WebResourceError error) {
@@ -150,9 +174,7 @@ class _MjgWebViewState extends State<MjpgWebView> {
                           onImageLoadError(null)
                       })""")
       },
-      dartCallBacks: {
-        DartCallback(name: "onImageLoadError", callBack: onImageLoadError)
-      },
+      dartCallBacks: {DartCallback(name: "onImageLoadError", callBack: onImageLoadError)},
       onPageFinished: (src) {
         print("onPageFinished: $src");
       },

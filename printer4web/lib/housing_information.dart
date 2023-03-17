@@ -1,75 +1,62 @@
-import 'dart:async';
-
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:printer4web/printer_chart.dart';
-import 'package:printer4web/printer_communication.dart';
+
+import 'custom_printer_chart.dart';
 
 class HousingInformation extends StatefulWidget {
-  HousingInformation({super.key});
+  HousingInformation({super.key, required this.housingState});
 
-  PrinterConnection? connection;
-
+  AppHousingState housingState;
 
   @override
   State<HousingInformation> createState() => _HousingInformationState();
 }
 
-class _HousingInformationState extends State<HousingInformation> {
-  bool status = true;
-  bool isTempControlActive = true;
-  int profileValue = 0;
+class AppHousingState {
+  double innerTempTop = 0;
+  double innerTempBottom = 0;
+  double outerTemp = 0;
+  bool isTempControlActive = false;
 
-  double tempOutside = 21.3;
-  double tempTop = 32.4;
-  double tempBottom = 24.3;
+  double tempOverall = 0;
 
-  double tempOverallHave = 27.7;
-  double tempOverallWant = 20;
+  double tempOverallHave = 0;
+  double tempOverallWant = 0;
   double fanSpeed = 0.8;
 
-  static const int timerPeriod = 3;
-  Timer ?timer;
+  List<FlSpot> history = [];
 
-
-  List<DropdownMenuItem<int>>
-
-  profiles = [
-    const DropdownMenuItem(value: 0, child: Text("PETG"),),
-    const DropdownMenuItem (value: 1, child: Text("ABS"),),
+  List<DropdownMenuItem<int>> profiles = [
+    const DropdownMenuItem(
+      value: 0,
+      child: Text("PETG"),
+    ),
+    const DropdownMenuItem(
+      value: 1,
+      child: Text("ABS"),
+    ),
   ];
 
+  int selectedProfile = 0;
+}
 
-  @override
-  void initState() {
-    super.initState();
-
-    PrinterConnection.create("192.168.178.143", 1933).then((connection) => widget.connection = connection);
-
-    Timer.periodic(Duration(seconds: timerPeriod.round()), sendStatusRequest
-    );
-  }
-
-  void sendStatusRequest(Timer _){
-    print("clicked preheat");
-    widget.connection?.sendStatusRequest();
-    print("connection is ${widget.connection}");
-  }
+class _HousingInformationState extends State<HousingInformation> {
+  bool status = true;
 
   void onStatusSwitchChanged(bool value) {
+    // TODO Send message to printer to turn off.
     setState(() {
       status = value;
     });
   }
 
   void onTempControlChanged(bool value) {
-    setState(() {
-      isTempControlActive = value;
-    });
+    // TODO Send message to printer to change temp control.
   }
 
   void onProfileChanged(int? value) {
     setState(() {
-      profileValue = value ?? 0;
+      widget.housingState.selectedProfile = value ?? 0;
     });
   }
 
@@ -84,10 +71,7 @@ class _HousingInformationState extends State<HousingInformation> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Status"),
-                Switch(value: status, onChanged: onStatusSwitchChanged)
-              ],
+              children: [const Text("Status"), Switch(value: status, onChanged: onStatusSwitchChanged)],
             ),
             const Divider(
               color: Colors.grey,
@@ -108,19 +92,19 @@ class _HousingInformationState extends State<HousingInformation> {
                   Row(
                     children: [
                       const Icon(Icons.crop_square_rounded),
-                      Text("${tempOutside.round()}°C"),
+                      Text("${widget.housingState.outerTemp.round()}°C"),
                     ],
                   ),
                   Row(
                     children: [
                       const Icon(Icons.maximize),
-                      Text("${tempTop.round()}°C"),
+                      Text("${widget.housingState.innerTempTop.round()}°C"),
                     ],
                   ),
                   Row(
                     children: [
                       const Icon(Icons.minimize),
-                      Text("${tempBottom.round()}°C"),
+                      Text("${widget.housingState.innerTempBottom.round()}°C"),
                     ],
                   ),
                 ],
@@ -129,11 +113,7 @@ class _HousingInformationState extends State<HousingInformation> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Temperaturregelung"),
-                Switch(
-                    value: isTempControlActive, onChanged: onTempControlChanged)
-              ],
+              children: [const Text("Temperaturregelung"), Switch(value: widget.housingState.isTempControlActive, onChanged: onTempControlChanged)],
             ),
             const Divider(
               color: Colors.grey,
@@ -144,8 +124,8 @@ class _HousingInformationState extends State<HousingInformation> {
               children: [
                 const Text("Profil:"),
                 DropdownButton(
-                  value: profileValue,
-                  items: profiles,
+                  value: widget.housingState.selectedProfile,
+                  items: widget.housingState.profiles,
                   onChanged: onProfileChanged,
                 )
               ],
@@ -157,14 +137,14 @@ class _HousingInformationState extends State<HousingInformation> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(Icons.heat_pump),
-                    Text("${(fanSpeed * 100).round().clamp(0, 100)}%"),
+                    Text("${(widget.housingState.fanSpeed * 100).round().clamp(0, 100)}%"),
                   ],
                 ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Icon(Icons.square_outlined),
-                    Text("${tempOverallHave.round()}/${tempOverallWant.round()}°C"),
+                    Text("${widget.housingState.tempOverallHave.round()}/${widget.housingState.tempOverallWant.round()}°C"),
                   ],
                 )
               ],
@@ -179,9 +159,8 @@ class _HousingInformationState extends State<HousingInformation> {
       ),
     );
   }
-}
 
-Widget chartToRun() {
-  //List<double> list = [19.4, 20.3, 13.0, 3.9];
-  return LineChartSample10();
+  Widget chartToRun() {
+    return LineChartExample(history: widget.housingState.history);
+  }
 }
