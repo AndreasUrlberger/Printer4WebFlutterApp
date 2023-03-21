@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/custom_printer_chart.dart';
+import 'package:printer4web/printer_4_web_icons.dart';
 
 class PrinterInformation extends StatefulWidget {
   PrinterInformation({super.key, required this.printerInformationState});
@@ -102,13 +103,13 @@ class _PrinterInformationState extends State<PrinterInformation> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.pin_drop),
+                    const Icon(Printer4Web.nozzle),
                     Text("${widget.printerInformationState.nozzleTempHave.round()}/${widget.printerInformationState.nozzleTempWanted.round()}°C")
                   ],
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.hot_tub),
+                    const Icon(Printer4Web.heatplate),
                     Text("${widget.printerInformationState.heatbedTempHave.round()}/${widget.printerInformationState.heatbedTempWanted.round()}°C")
                   ],
                 )

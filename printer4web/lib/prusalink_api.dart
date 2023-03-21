@@ -1,18 +1,14 @@
 import 'dart:convert';
 
-import 'package:http_auth/http_auth.dart';
+import 'package:printer4web/http_auth/http_auth_digest.dart';
 import 'package:printer4web/auth/keys.dart';
 import 'package:printer4web/prusalink_data.dart';
 
 Future<PrusalinkData?> makeRequest() async {
-  final Uri uri =
-      Uri(scheme: 'http', host: '192.168.178.129', path: 'api/printer');
-
+  final Uri uri = Uri.http("192.168.178.155:8080", "http://192.168.178.129/api/printer");
   var client = DigestAuthClient(prusalinkUsername, prusalinkPassword);
 
-  final url = uri;
-
-  return client.get(url).then(
+  return client.get(uri, headers: {"x-requested-with": "XMLHttpRequest"}).then(
     (response) {
       PrusalinkData? data;
       if (response.statusCode == 200) {
@@ -21,6 +17,9 @@ Future<PrusalinkData?> makeRequest() async {
       }
 
       return data;
+    },
+    onError: (error, stack) {
+      print("Http api request error: $error, stack: $stack");
     },
   );
 }

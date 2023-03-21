@@ -5,9 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:webviewx/webviewx.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key, required this.homePageState});
+  HomePage({super.key, required this.homePageState, required this.pressDebugButton});
 
   AppHomePageState homePageState;
+  Function pressDebugButton;
 
   final DateFormat dateFormat = DateFormat('kk:mm');
 
@@ -29,9 +30,17 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                widget.pressDebugButton(null);
+              },
+              child: Text("Debug Button"),
+            ),
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [Text(widget.homePageState.printName), Text("${widget.homePageState.printProgress}%")],

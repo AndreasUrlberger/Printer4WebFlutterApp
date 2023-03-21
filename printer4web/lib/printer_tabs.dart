@@ -2,13 +2,14 @@ import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:printer4web/printer_communication.dart';
+import 'package:printer4web/printer_4_web_icons.dart';
 import 'package:printer4web/proto/printer_data.pb.dart';
 import 'homepage.dart';
 import 'printer_information.dart';
 import 'housing_information.dart';
 import 'prusalink.dart';
 import 'settings.dart';
+import 'printer_communication_web.dart';
 
 import 'prusalink_api.dart';
 
@@ -21,7 +22,7 @@ class PrinterTabs extends StatefulWidget {
   static const num historySeconds = 120;
   static const num numHistoryElements = historySeconds / timerPeriod;
 
-  PrinterConnection? connection;
+  PrinterConnectionWeb? connection;
 
   @override
   State<PrinterTabs> createState() => _PrinterTabsState();
@@ -50,10 +51,10 @@ class _PrinterTabsState extends State<PrinterTabs> {
                 icon: Icon(Icons.home_outlined),
               ),
               Tab(
-                icon: Icon(Icons.science_outlined),
+                icon: Icon(Printer4Web.printer_3d),
               ),
               Tab(
-                icon: Icon(Icons.crop_square_rounded),
+                icon: Icon(Printer4Web.housing),
               ),
               Tab(
                 icon: Icon(Icons.cloud_outlined),
@@ -66,7 +67,7 @@ class _PrinterTabsState extends State<PrinterTabs> {
         ),
         body: TabBarView(
           children: [
-            HomePage(homePageState: widget.appState.homePageState),
+            HomePage(homePageState: widget.appState.homePageState, pressDebugButton: prusaDataRequest),
             PrinterInformation(printerInformationState: widget.appState.printerInformationState),
             HousingInformation(housingState: widget.appState.housingState),
             Prusalink(),
@@ -81,27 +82,27 @@ class _PrinterTabsState extends State<PrinterTabs> {
   void initState() {
     super.initState();
 
-    prusaDataRequest(null);
+    runTimedTasks(null);
 
     timer = Timer.periodic(
       Duration(seconds: PrinterTabs.timerPeriod.round()),
       runTimedTasks,
     );
 
-    PrinterConnection.create("192.168.178.143", 1933, processStatusMessage).then((connection) => widget.connection = connection, onError: (error) {
-      print("Failed creating connection with error: $error");
-    });
+    // PrinterConnectionWeb.create("192.168.178.143", 1933, processStatusMessage).then((connection) => widget.connection = connection, onError: (error) {
+    //   print("Failed creating connection with error: $error");
+    // });
   }
 
-  void runTimedTasks(Timer t) {
+  void runTimedTasks(Timer? t) {
     prusaDataRequest(t);
     sendStatusRequest(t);
   }
 
-  void sendStatusRequest(Timer _) {
+  void sendStatusRequest(Timer? _) {
     widget.connection?.sendStatusRequest();
     if (widget.connection == null) {
-      print("connection is ${widget.connection}");
+      //print("connection is ${widget.connection}");
     }
   }
 

@@ -39,9 +39,13 @@ dependencies:
   webviewx: ^0.2.1
   webview_flutter: ^2.8.0
   intl: ^0.18.0
-  http_auth: ^1.0.1
+  #http_auth: ^1.0.1
   fl_chart: ^0.61.0
   protobuf: ^2.1.0
+  web_socket_channel: ^2.3.0
+  http: ^0.13.5
+  crypto: ^3.0.2
+  convert: ^3.1.1
 
 dev_dependencies:
   flutter_test:
@@ -96,3 +100,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family:  Printer4Web
+      fonts:
+      - asset: icons/Printer4Web.ttf
