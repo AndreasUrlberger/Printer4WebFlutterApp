@@ -1,7 +1,9 @@
+import 'dart:core';
 import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 
 class PrinterChart extends StatefulWidget {
   const PrinterChart({super.key, required this.history});
@@ -22,12 +24,19 @@ class _PrinterChartState extends State<PrinterChart> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta, double upperBound, double lowerBound, double interval) {
-    // Filter out the top most and bottom most tile to prevent overlapping.
-    if ((upperBound - value) < 0.001 || (value - lowerBound) < 0.001) {
+    // Do not draw the border as there is an interval very close to it.
+    if (value == upperBound || value == lowerBound) {
       return const Text("");
-    } else {
-      return Text(value.toStringAsPrecision(3), textAlign: TextAlign.left);
     }
+
+    const Color a = Colors.transparent;
+    const Color b = Colors.black;
+
+    final double distanceToBounds = min((upperBound - value).abs(), (value - lowerBound).abs());
+    final double boundsPercentage = distanceToBounds / ((upperBound - lowerBound) / 2);
+    final double opacity = (boundsPercentage + 1) / 2;
+
+    return Text("${value.round()}", textAlign: TextAlign.left, style: TextStyle(color: Color.lerp(a, b, opacity)));
   }
 
   double roundProperly(double value) {
@@ -35,66 +44,99 @@ class _PrinterChartState extends State<PrinterChart> {
     return rounded;
   }
 
+  Tuple3<int, int, int> getBounds(double lowest, double highest, int minInterval, int wantedIntervals) {
+    int lower = lowest.floor();
+    int upper = highest.ceil();
+
+    final int lowerBound;
+    final int upperBound;
+    final int interval;
+
+    if ((upper - lower) < (minInterval * wantedIntervals)) {
+      final int diff = upper - lower;
+      final int missing = (minInterval * wantedIntervals) - diff;
+
+      lower -= missing ~/ 2;
+      upper += missing ~/ 2;
+
+      if (missing % 2 != 0) {
+        final double distanceToUpper = (upper - highest).abs();
+        final double distanceToLower = (lowest - lower).abs();
+        if (distanceToUpper < distanceToLower) {
+          upper += 1;
+        } else {
+          lower += 1;
+        }
+      }
+
+      lowerBound = lower;
+      upperBound = upper;
+      interval = minInterval;
+    } else {
+      lowerBound = lowest.ceil() - 1;
+      upperBound = highest.floor() + 1;
+
+      interval = (upperBound - lowerBound) ~/ wantedIntervals;
+    }
+
+    return Tuple3(lowerBound, upperBound, interval);
+  }
+
   @override
   Widget build(BuildContext context) {
-    const double defaultValue = 20;
-    double lowerBound = widget.history.isEmpty ? defaultValue : widget.history.map((e) => e.y).reduce(min);
-    double upperBound = widget.history.isEmpty ? defaultValue : widget.history.map((e) => e.y).reduce(max);
-
-    {
-      double boundDiff = (upperBound - lowerBound);
-      if (boundDiff < 0.01) {
-        boundDiff = 1;
-      }
-      double boundBuffer = boundDiff * 0.15;
-      lowerBound -= boundBuffer;
-      upperBound += boundBuffer;
+    if (widget.history.isEmpty) {
+      return Container();
     }
 
-    double interval = roundProperly((upperBound - lowerBound) / 4);
-    if (interval < 0.01) {
-      interval = 0.1;
-    }
+    const int minInterval = 1;
+    const int wantedIntervals = 4;
 
-    return widget.history.isNotEmpty
-        ? LineChart(
-            LineChartData(
-              minY: lowerBound,
-              maxY: upperBound,
-              minX: widget.history.first.x,
-              maxX: widget.history.last.x,
-              lineTouchData: LineTouchData(enabled: false),
-              clipData: FlClipData.all(),
-              gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: interval),
-              borderData: FlBorderData(show: false),
-              lineBarsData: [
-                sinLine(widget.history),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: interval,
-                    getTitlesWidget: (value, meta) {
-                      return leftTitleWidgets(value, meta, upperBound, lowerBound, interval);
-                    },
-                    reservedSize: 35,
-                  ),
-                ),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                show: true,
-              ),
+    final double lowest = widget.history.map((e) => e.y).reduce(min);
+    final double highest = widget.history.map((e) => e.y).reduce(max);
+
+    final bounds = getBounds(lowest, highest, minInterval, wantedIntervals);
+    // Extend by a little to make sure the last interval is drawn.
+    final double lowerBound = bounds.item1.toDouble() - 0.0001;
+    final double upperBound = bounds.item2.toDouble() + 0.0001;
+    final double interval = bounds.item3.toDouble();
+
+    return LineChart(
+      LineChartData(
+        minY: lowerBound,
+        maxY: upperBound,
+        minX: widget.history.first.x,
+        maxX: widget.history.last.x,
+        lineTouchData: LineTouchData(enabled: false),
+        clipData: FlClipData.all(),
+        gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: interval),
+        borderData: FlBorderData(show: false),
+        lineBarsData: [
+          sinLine(widget.history),
+        ],
+        titlesData: FlTitlesData(
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              interval: interval,
+              getTitlesWidget: (value, meta) {
+                return leftTitleWidgets(value, meta, upperBound, lowerBound, interval);
+              },
+              reservedSize: 35,
             ),
-          )
-        : Container();
+          ),
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          show: true,
+        ),
+      ),
+    );
   }
 
   LineChartBarData sinLine(List<FlSpot> points) {
