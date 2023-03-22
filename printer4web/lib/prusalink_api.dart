@@ -1,8 +1,8 @@
 import 'dart:convert';
 
-import 'package:printer4web/http_auth/http_auth_digest.dart';
 import 'package:printer4web/auth/keys.dart';
 import 'package:printer4web/prusalink_data.dart';
+import 'package:http_auth/http_auth.dart';
 
 Future<PrusalinkData?> makeRequest() async {
   final Uri uri = Uri.http("192.168.178.155:8080", "http://192.168.178.129/api/printer");
