@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
+import 'package:printer4web/printer_http_api.dart';
 import 'package:printer4web/proto/printer_data.pb.dart';
 import 'homepage.dart';
 import 'printer_information.dart';
 import 'housing_information.dart';
 import 'prusalink.dart';
 import 'settings.dart';
-import 'printer_communication_web.dart';
 
 import 'prusalink_api.dart';
 
@@ -21,8 +21,6 @@ class PrinterTabs extends StatefulWidget {
   static const num timerPeriod = 1;
   static const num historySeconds = 120;
   static const num numHistoryElements = historySeconds / timerPeriod;
-
-  PrinterConnectionWeb? connection;
 
   @override
   State<PrinterTabs> createState() => _PrinterTabsState();
@@ -88,10 +86,6 @@ class _PrinterTabsState extends State<PrinterTabs> {
       Duration(seconds: PrinterTabs.timerPeriod.round()),
       runTimedTasks,
     );
-
-    // PrinterConnectionWeb.create("192.168.178.143", 1933, processStatusMessage).then((connection) => widget.connection = connection, onError: (error) {
-    //   print("Failed creating connection with error: $error");
-    // });
   }
 
   void runTimedTasks(Timer? t) {
@@ -100,10 +94,10 @@ class _PrinterTabsState extends State<PrinterTabs> {
   }
 
   void sendStatusRequest(Timer? _) {
-    widget.connection?.sendStatusRequest();
-    if (widget.connection == null) {
-      //print("connection is ${widget.connection}");
-    }
+    PrinterHttpApi.getStatus("192.168.178.143", 1933).then((value) {
+      print("status from request: outside: ${value.temperatureOutside}, top: ${value.temperatureInsideTop}, bottom: ${value.temperatureInsideBottom}");
+      processStatusMessage(value);
+    }, onError: (error) => {print("status request error: $error")});
   }
 
   void prusaDataRequest(Timer? _) {

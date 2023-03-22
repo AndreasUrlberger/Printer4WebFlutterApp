@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import 'custom_printer_chart.dart';
+import 'printer_chart.dart';
 
 class HousingInformation extends StatefulWidget {
   HousingInformation({super.key, required this.housingState});
@@ -161,6 +161,6 @@ class _HousingInformationState extends State<HousingInformation> {
   }
 
   Widget chartToRun() {
-    return LineChartExample(history: widget.housingState.history);
+    return PrinterChart(history: widget.housingState.history);
   }
 }

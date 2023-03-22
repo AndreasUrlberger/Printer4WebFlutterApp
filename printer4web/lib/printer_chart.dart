@@ -1,70 +1,96 @@
-import 'dart:async';
-import 'dart:math' as math;
+import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-class LineChartSample10 extends StatefulWidget {
-  const LineChartSample10({super.key});
+class PrinterChart extends StatefulWidget {
+  const PrinterChart({super.key, required this.history});
 
   final Color sinColor = Colors.amberAccent;
   final Color cosColor = Colors.amber;
 
+  final List<FlSpot> history;
+
   @override
-  State<LineChartSample10> createState() => _LineChartSample10State();
+  State<PrinterChart> createState() => _PrinterChartState();
 }
 
-class _LineChartSample10State extends State<LineChartSample10> {
-  final limitCount = 100;
-  final sinPoints = <FlSpot>[];
-  final cosPoints = <FlSpot>[];
-
-  double xValue = 0;
-  double step = 0.05;
-
-  late Timer timer;
-
+class _PrinterChartState extends State<PrinterChart> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(const Duration(milliseconds: 40), (timer) {
-      while (sinPoints.length > limitCount) {
-        sinPoints.removeAt(0);
-        cosPoints.removeAt(0);
-      }
-      setState(() {
-        sinPoints.add(FlSpot(xValue, math.sin(xValue)));
-        cosPoints.add(FlSpot(xValue, math.cos(xValue)));
-      });
-      xValue += step;
-    });
+  }
+
+  Widget leftTitleWidgets(double value, TitleMeta meta, double upperBound, double lowerBound, double interval) {
+    // Filter out the top most and bottom most tile to prevent overlapping.
+    if ((upperBound - value) < 0.001 || (value - lowerBound) < 0.001) {
+      return const Text("");
+    } else {
+      return Text(value.toStringAsPrecision(3), textAlign: TextAlign.left);
+    }
+  }
+
+  double roundProperly(double value) {
+    var rounded = (value * 50).round() / 50;
+    return rounded;
   }
 
   @override
   Widget build(BuildContext context) {
-    return cosPoints.isNotEmpty
-        ? Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
-            child: LineChart(
-              LineChartData(
-                minY: -1.1,
-                maxY: 1.1,
-                minX: sinPoints.first.x,
-                maxX: sinPoints.last.x,
-                lineTouchData: LineTouchData(enabled: false),
-                clipData: FlClipData.all(),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
+    const double defaultValue = 20;
+    double lowerBound = widget.history.isEmpty ? defaultValue : widget.history.map((e) => e.y).reduce(min);
+    double upperBound = widget.history.isEmpty ? defaultValue : widget.history.map((e) => e.y).reduce(max);
+
+    {
+      double boundDiff = (upperBound - lowerBound);
+      if (boundDiff < 0.01) {
+        boundDiff = 1;
+      }
+      double boundBuffer = boundDiff * 0.15;
+      lowerBound -= boundBuffer;
+      upperBound += boundBuffer;
+    }
+
+    double interval = roundProperly((upperBound - lowerBound) / 4);
+    if (interval < 0.01) {
+      interval = 0.1;
+    }
+
+    return widget.history.isNotEmpty
+        ? LineChart(
+            LineChartData(
+              minY: lowerBound,
+              maxY: upperBound,
+              minX: widget.history.first.x,
+              maxX: widget.history.last.x,
+              lineTouchData: LineTouchData(enabled: false),
+              clipData: FlClipData.all(),
+              gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: interval),
+              borderData: FlBorderData(show: false),
+              lineBarsData: [
+                sinLine(widget.history),
+              ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    interval: interval,
+                    getTitlesWidget: (value, meta) {
+                      return leftTitleWidgets(value, meta, upperBound, lowerBound, interval);
+                    },
+                    reservedSize: 35,
+                  ),
                 ),
-                borderData: FlBorderData(show: false),
-                lineBarsData: [
-                  sinLine(sinPoints),
-                  cosLine(cosPoints),
-                ],
-                titlesData: FlTitlesData(
-                  show: false,
+                rightTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
+                topTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                show: true,
               ),
             ),
           )
@@ -79,31 +105,10 @@ class _LineChartSample10State extends State<LineChartSample10> {
       ),
       gradient: LinearGradient(
         colors: [widget.sinColor.withOpacity(0), widget.sinColor],
-        stops: const [0.1, 1.0],
+        stops: const [0.0, 0.2],
       ),
       barWidth: 4,
-      isCurved: false,
+      isCurved: true,
     );
-  }
-
-  LineChartBarData cosLine(List<FlSpot> points) {
-    return LineChartBarData(
-      spots: points,
-      dotData: FlDotData(
-        show: false,
-      ),
-      gradient: LinearGradient(
-        colors: [widget.cosColor.withOpacity(0), widget.cosColor],
-        stops: const [0.1, 1.0],
-      ),
-      barWidth: 4,
-      isCurved: false,
-    );
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
   }
 }

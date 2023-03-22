@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:printer4web/custom_printer_chart.dart';
+import 'printer_chart.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 
 class PrinterInformation extends StatefulWidget {
@@ -125,15 +125,11 @@ class _PrinterInformationState extends State<PrinterInformation> {
             const SizedBox(height: 16),
             AspectRatio(
               aspectRatio: 16.0 / 9.0,
-              child: LineChartExample(history: widget.printerInformationState.temperatureHistory),
+              child: PrinterChart(history: widget.printerInformationState.temperatureHistory),
             )
           ],
         ),
       ),
     );
   }
-}
-
-Widget chartToRun(List<double> history) {
-  return PrinterChart(history);
 }
