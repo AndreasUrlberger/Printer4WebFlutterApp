@@ -129,7 +129,8 @@ class _PrinterTabsState extends State<PrinterTabs> {
         ..innerTempBottom = printerStatus.temperatureInsideBottom
         ..innerTempTop = printerStatus.temperatureInsideTop
         ..outerTemp = printerStatus.temperatureOutside
-        ..isTempControlActive = printerStatus.isTempControlActive;
+        ..isTempControlActive = printerStatus.isTempControlActive
+        ..fanSpeed = printerStatus.fanSpeed;
 
       widget.appState.housingState.printProfiles.clear();
       for (var config in printerStatus.printConfigs) {
