@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:intl/intl.dart';
+import 'package:printer4web/printer_settings.dart';
 import 'package:webviewx/webviewx.dart';
 
 class HomePage extends StatefulWidget {
@@ -31,14 +32,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
           Center(
             child: ElevatedButton(
               onPressed: () {
                 widget.pressDebugButton(null);
               },
-              child: Text("Debug Button"),
+              child: const Text("Debug Button"),
             ),
           ),
           Row(
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
                 child: kIsWeb
                     ? const MjpgWebView()
                     : const Mjpeg(
-                        stream: 'http://192.168.178.143:8080/?action=stream',
+                        stream: mjpgStreamAddress,
                         isLive: true,
                         error: onMjpgError,
                         timeout: Duration(seconds: 10),
@@ -126,7 +127,7 @@ class _MjgWebViewState extends State<MjpgWebView> {
   String streamHtml = '''
     <html>
     <body style="margin: 0; padding: 0">
-    <img id="image" src="http://192.168.178.143:8080/?action=stream" height="100%" width="100%" >
+    <img id="image" src=$mjpgStreamAddress height="100%" width="100%" >
     </body>
     </html>
     ''';

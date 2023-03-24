@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:printer4web/auth/keys.dart';
+import 'package:printer4web/printer_settings.dart';
 import 'package:printer4web/prusalink_data.dart';
 import 'package:http_auth/http_auth.dart';
 
 Future<PrusalinkData?> makeRequest() async {
-  final Uri uri = Uri.http("192.168.178.155:8080", "http://192.168.178.129/api/printer");
+  final Uri uri = Uri.http(corsProxyAddress, prusalinkPrinterApi);
   var client = DigestAuthClient(prusalinkUsername, prusalinkPassword);
 
   return client.get(uri, headers: {"x-requested-with": "XMLHttpRequest"}).then(

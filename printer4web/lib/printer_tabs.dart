@@ -8,8 +8,6 @@ import 'package:printer4web/proto/printer_data.pb.dart';
 import 'homepage.dart';
 import 'printer_information.dart';
 import 'housing_information.dart';
-import 'prusalink.dart';
-import 'settings.dart';
 
 import 'prusalink_api.dart';
 
@@ -38,7 +36,7 @@ class _PrinterTabsState extends State<PrinterTabs> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(title: const Text("App Title")),
         bottomNavigationBar: Container(
@@ -54,12 +52,6 @@ class _PrinterTabsState extends State<PrinterTabs> {
               Tab(
                 icon: Icon(Printer4Web.housing),
               ),
-              Tab(
-                icon: Icon(Icons.cloud_outlined),
-              ),
-              Tab(
-                icon: Icon(Icons.settings_outlined),
-              ),
             ],
           ),
         ),
@@ -68,8 +60,6 @@ class _PrinterTabsState extends State<PrinterTabs> {
             HomePage(homePageState: widget.appState.homePageState, pressDebugButton: prusaDataRequest),
             PrinterInformation(printerInformationState: widget.appState.printerInformationState),
             HousingInformation(housingState: widget.appState.housingState),
-            Prusalink(),
-            Settings(),
           ],
         ),
       ),
@@ -94,10 +84,11 @@ class _PrinterTabsState extends State<PrinterTabs> {
   }
 
   void sendStatusRequest(Timer? _) {
-    PrinterHttpApi.getStatus("192.168.178.143", 1933).then((value) {
-      print("status from request: outside: ${value.temperatureOutside}, top: ${value.temperatureInsideTop}, bottom: ${value.temperatureInsideBottom}");
+    PrinterHttpApi.getStatus().then((value) {
       processStatusMessage(value);
-    }, onError: (error) => {print("status request error: $error")});
+    }, onError: (error) {
+      print("status request error: $error");
+    });
   }
 
   void prusaDataRequest(Timer? _) {
@@ -105,11 +96,12 @@ class _PrinterTabsState extends State<PrinterTabs> {
       (prusalinkData) {
         if (prusalinkData != null) {
           setState(() {
-            widget.appState.printerInformationState.prusalinkStatus = true;
-            widget.appState.printerInformationState.nozzleTempWanted = prusalinkData.temperature.nozzle.targetTemp;
-            widget.appState.printerInformationState.nozzleTempHave = prusalinkData.temperature.nozzle.actualTemp;
-            widget.appState.printerInformationState.heatbedTempWanted = prusalinkData.temperature.heatbed.targetTemp;
-            widget.appState.printerInformationState.heatbedTempHave = prusalinkData.temperature.heatbed.actualTemp;
+            widget.appState.printerInformationState
+              ..prusalinkStatus = true
+              ..nozzleTempWanted = prusalinkData.temperature.nozzle.targetTemp
+              ..nozzleTempHave = prusalinkData.temperature.nozzle.actualTemp
+              ..heatbedTempWanted = prusalinkData.temperature.heatbed.targetTemp
+              ..heatbedTempHave = prusalinkData.temperature.heatbed.actualTemp;
           });
         } else {
           print("Prusalink data could not get fetched.");
@@ -133,10 +125,17 @@ class _PrinterTabsState extends State<PrinterTabs> {
     }
 
     setState(() {
-      widget.appState.housingState.innerTempBottom = printerStatus.temperatureInsideBottom;
-      widget.appState.housingState.innerTempTop = printerStatus.temperatureInsideTop;
-      widget.appState.housingState.outerTemp = printerStatus.temperatureOutside;
-      widget.appState.housingState.isTempControlActive = printerStatus.isTempControlActive;
+      widget.appState.housingState
+        ..innerTempBottom = printerStatus.temperatureInsideBottom
+        ..innerTempTop = printerStatus.temperatureInsideTop
+        ..outerTemp = printerStatus.temperatureOutside
+        ..isTempControlActive = printerStatus.isTempControlActive;
+
+      widget.appState.housingState.printProfiles.clear();
+      for (var config in printerStatus.printConfigs) {
+        widget.appState.housingState.printProfiles.add(PrintProfile(config.name, config.temperature));
+      }
+      widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
 
       widget.appState.housingState.history.add(FlSpot(
         DateTime.now().millisecondsSinceEpoch.toDouble(),

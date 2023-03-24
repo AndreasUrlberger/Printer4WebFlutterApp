@@ -107,17 +107,22 @@ class AddPrintConfig extends $pb.GeneratedMessage {
 
 class ChangeTempControl extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'ChangeTempControl', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Printer'), createEmptyInstance: create)
-    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isActive', protoName: 'isActive')
+    ..aOB(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'isActive')
+    ..aOM<PrintConfig>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'selectedPrintConfig', subBuilder: PrintConfig.create)
     ..hasRequiredFields = false
   ;
 
   ChangeTempControl._() : super();
   factory ChangeTempControl({
     $core.bool? isActive,
+    PrintConfig? selectedPrintConfig,
   }) {
     final _result = create();
     if (isActive != null) {
       _result.isActive = isActive;
+    }
+    if (selectedPrintConfig != null) {
+      _result.selectedPrintConfig = selectedPrintConfig;
     }
     return _result;
   }
@@ -150,6 +155,17 @@ class ChangeTempControl extends $pb.GeneratedMessage {
   $core.bool hasIsActive() => $_has(0);
   @$pb.TagNumber(1)
   void clearIsActive() => clearField(1);
+
+  @$pb.TagNumber(2)
+  PrintConfig get selectedPrintConfig => $_getN(1);
+  @$pb.TagNumber(2)
+  set selectedPrintConfig(PrintConfig v) { setField(2, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasSelectedPrintConfig() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSelectedPrintConfig() => clearField(2);
+  @$pb.TagNumber(2)
+  PrintConfig ensureSelectedPrintConfig() => $_ensure(1);
 }
 
 class RemovePrintConfig extends $pb.GeneratedMessage {
@@ -270,6 +286,7 @@ class PrinterStatus extends $pb.GeneratedMessage {
     ..a<$core.double>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'temperatureInsideBottom', $pb.PbFieldType.OF)
     ..aOM<PrintConfig>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'currentPrintConfig', subBuilder: PrintConfig.create)
     ..pc<PrintConfig>(6, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'printConfigs', $pb.PbFieldType.PM, subBuilder: PrintConfig.create)
+    ..a<$core.double>(7, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fanSpeed', $pb.PbFieldType.OF)
     ..hasRequiredFields = false
   ;
 
@@ -281,6 +298,7 @@ class PrinterStatus extends $pb.GeneratedMessage {
     $core.double? temperatureInsideBottom,
     PrintConfig? currentPrintConfig,
     $core.Iterable<PrintConfig>? printConfigs,
+    $core.double? fanSpeed,
   }) {
     final _result = create();
     if (isTempControlActive != null) {
@@ -300,6 +318,9 @@ class PrinterStatus extends $pb.GeneratedMessage {
     }
     if (printConfigs != null) {
       _result.printConfigs.addAll(printConfigs);
+    }
+    if (fanSpeed != null) {
+      _result.fanSpeed = fanSpeed;
     }
     return _result;
   }
@@ -373,5 +394,14 @@ class PrinterStatus extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(6)
   $core.List<PrintConfig> get printConfigs => $_getList(5);
+
+  @$pb.TagNumber(7)
+  $core.double get fanSpeed => $_getN(6);
+  @$pb.TagNumber(7)
+  set fanSpeed($core.double v) { $_setFloat(6, v); }
+  @$pb.TagNumber(7)
+  $core.bool hasFanSpeed() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearFanSpeed() => clearField(7);
 }
 

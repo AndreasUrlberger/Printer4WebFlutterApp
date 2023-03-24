@@ -1,6 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:intl/intl.dart';
+import 'package:printer4web/printer_settings.dart';
 import 'printer_chart.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 
@@ -126,10 +128,45 @@ class _PrinterInformationState extends State<PrinterInformation> {
             AspectRatio(
               aspectRatio: 16.0 / 9.0,
               child: PrinterChart(history: widget.printerInformationState.temperatureHistory),
-            )
+            ),
+            const Spacer(),
+            ElevatedButton(onPressed: () => _launchPrusalinkSite(context), child: const Text("PrusaLink")),
           ],
         ),
       ),
     );
+  }
+
+
+  Future<void> _launchPrusalinkSite(BuildContext context) async {
+    final theme = Theme.of(context);
+    try {
+      await launch(
+        prusalinkAddress,
+        customTabsOption: CustomTabsOption(
+          toolbarColor: theme.primaryColor,
+          enableDefaultShare: true,
+          enableUrlBarHiding: true,
+          showPageTitle: true,
+          animation: CustomTabsSystemAnimation.slideIn(),
+          extraCustomTabs: const <String>[
+            // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
+            'org.mozilla.firefox',
+            // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
+            'com.microsoft.emmx',
+          ],
+        ),
+        safariVCOption: SafariViewControllerOption(
+          preferredBarTintColor: theme.primaryColor,
+          preferredControlTintColor: Colors.white,
+          barCollapsingEnabled: true,
+          entersReaderIfAvailable: false,
+          dismissButtonStyle: SafariViewControllerDismissButtonStyle.close,
+        ),
+      );
+    } catch (e) {
+      // An exception is thrown if browser app is not installed on Android device.
+      debugPrint(e.toString());
+    }
   }
 }

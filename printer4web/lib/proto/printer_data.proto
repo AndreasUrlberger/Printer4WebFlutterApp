@@ -1,9 +1,8 @@
 // Compile via:  protoc --dart_out=. ./lib/proto/printer_data.proto --plugin $HOME/.pub-cache/bin
 
 syntax = "proto3";
-package Printer;
 
-//import "google/protobuf/timestamp.proto";
+package Printer;
 
 message StatusRequest{
   bool include_print_configs = 1;
@@ -14,7 +13,8 @@ message AddPrintConfig{
 }
 
 message ChangeTempControl{
-  bool isActive = 1;
+  bool is_active = 1;
+  PrintConfig selected_print_config = 2;
 }
 
 message RemovePrintConfig{
@@ -34,4 +34,5 @@ message PrinterStatus{
   PrintConfig current_print_config = 5;
 
   repeated PrintConfig print_configs = 6;
+  float fan_speed = 7;
 }
