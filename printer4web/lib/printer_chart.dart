@@ -65,7 +65,7 @@ class _PrinterChartState extends State<PrinterChart> {
         if (distanceToUpper < distanceToLower) {
           upper += 1;
         } else {
-          lower += 1;
+          lower -= 1;
         }
       }
 
@@ -96,8 +96,8 @@ class _PrinterChartState extends State<PrinterChart> {
 
     final bounds = getBounds(lowest, highest, minInterval, wantedIntervals);
     // Extend by a little to make sure the last interval is drawn.
-    final double lowerBound = bounds.item1.toDouble() - 0.0001;
-    final double upperBound = bounds.item2.toDouble() + 0.0001;
+    final double lowerBound = bounds.item1.toDouble() - 0.001;
+    final double upperBound = bounds.item2.toDouble() + 0.001;
     final double interval = bounds.item3.toDouble();
 
     return LineChart(
