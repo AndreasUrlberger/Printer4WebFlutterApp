@@ -18,49 +18,41 @@ class HomePage extends StatefulWidget {
 }
 
 class AppHomePageState {
-  static const String defaultPrintName = "Kein laufender Druck";
-  static const int defaultPrintProgress = 0;
-  static const int defaultPrintTimeLeft = 0;
 
-  String printName = defaultPrintName;
-  int printProgress = defaultPrintProgress;
-  int printTimeLeft = defaultPrintTimeLeft;
+  String? printName;
+  int? printProgress;
+  int? printTimeLeft;
 }
 
 class _HomePageState extends State<HomePage> {
+  static const String defaultPrintName = "Kein laufender Druck";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                widget.pressDebugButton(null);
-              },
-              child: const Text("Debug Button"),
-            ),
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(widget.homePageState.printName), Text("${widget.homePageState.printProgress}%")],
+            children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${widget.homePageState.printProgress ?? 0}%")],
           ),
           const SizedBox(
             height: 16,
           ),
           LinearProgressIndicator(
-            value: widget.homePageState.printProgress.toDouble() / 100.0,
+            value: (widget.homePageState.printProgress?.toDouble() ?? 0) / 100.0,
             semanticsLabel: 'Print progress indicator',
           ),
           const SizedBox(
             height: 16,
           ),
+          if(widget.homePageState.printTimeLeft != null)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft)))}"),
-              Text("-${formatDeltaTime(widget.homePageState.printTimeLeft)}"),
+              Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft!)))}"),
+              Text("-${formatDeltaTime(widget.homePageState.printTimeLeft!)}"),
             ],
           ),
           const SizedBox(

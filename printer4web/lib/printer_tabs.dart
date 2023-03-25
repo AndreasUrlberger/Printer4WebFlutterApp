@@ -80,19 +80,22 @@ class _PrinterTabsState extends State<PrinterTabs> {
 
   void runTimedTasks(Timer? t) {
     prusaDataRequest(t);
-    sendStatusRequest(t);
+    sendPrinterStatusRequest(t);
   }
 
-  void sendStatusRequest(Timer? _) {
+  void sendPrinterStatusRequest(Timer? _) {
     PrinterHttpApi.getStatus().then((value) {
       processStatusMessage(value);
     }, onError: (error) {
       print("status request error: $error");
+      setState(() {
+        widget.appState.housingState.connectionStatus = false;
+      });
     });
   }
 
   void prusaDataRequest(Timer? _) {
-    makeRequest().then(
+    makePrinterRequest().then(
       (prusalinkData) {
         if (prusalinkData != null) {
           setState(() {
@@ -104,6 +107,7 @@ class _PrinterTabsState extends State<PrinterTabs> {
               ..heatbedTempHave = prusalinkData.temperature.heatbed.actualTemp;
           });
         } else {
+          widget.appState.printerInformationState.prusalinkStatus = false;
           print("Prusalink data could not get fetched.");
         }
         // Just use the same data again.
@@ -112,9 +116,30 @@ class _PrinterTabsState extends State<PrinterTabs> {
             widget.appState.printerInformationState.temperatureHistory.removeAt(0);
           }
 
-          widget.appState.printerInformationState.temperatureHistory
-              .add(FlSpot(DateTime.now().millisecondsSinceEpoch.toDouble(), widget.appState.printerInformationState.nozzleTempHave));
+          if (widget.appState.printerInformationState.nozzleTempHave != null) {
+            widget.appState.printerInformationState.temperatureHistory
+                .add(FlSpot(DateTime.now().millisecondsSinceEpoch.toDouble(), widget.appState.printerInformationState.nozzleTempHave!));
+          }
         });
+      },
+    );
+
+    makeJobRequest().then(
+      (prusalinkData) {
+        if (prusalinkData != null) {
+          setState(() {
+            widget.appState.printerInformationState
+              ..estimatedPrintTime = prusalinkData.job.estimatedPrintTime
+              ..prusalinkStatus = true
+              ..printName = prusalinkData.job.file.name;
+          });
+        } else {
+          print("Prusalink data could not get fetched.");
+          widget.appState.printerInformationState
+            ..estimatedPrintTime = null
+            ..prusalinkStatus = true
+            ..printName = null;
+        }
       },
     );
   }
@@ -130,6 +155,7 @@ class _PrinterTabsState extends State<PrinterTabs> {
         ..innerTempTop = printerStatus.temperatureInsideTop
         ..outerTemp = printerStatus.temperatureOutside
         ..isTempControlActive = printerStatus.isTempControlActive
+        ..connectionStatus = true
         ..fanSpeed = printerStatus.fanSpeed;
 
       widget.appState.housingState.printProfiles.clear();

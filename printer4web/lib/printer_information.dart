@@ -17,24 +17,25 @@ class PrinterInformation extends StatefulWidget {
 }
 
 class AppPrinterInformationState {
-  static const String defaultPrintName = "Kein laufender Druck";
-  static const double defaultNozzleTempWanted = 0.0;
-  static const double defaultNozzleTempHave = 0.0;
-  static const double defaultHeatbedTempWanted = 0.0;
-  static const double defaultHeatbedTempHave = 0.0;
-  static const int defaultPrintFinishedAt = 0;
+  int? estimatedPrintTime;
 
   bool prusalinkStatus = false;
-  String printName = defaultPrintName;
-  double nozzleTempWanted = defaultNozzleTempWanted;
-  double nozzleTempHave = defaultNozzleTempHave;
-  double heatbedTempWanted = defaultHeatbedTempWanted;
-  double heatbedTempHave = defaultHeatbedTempHave;
-  int printFinishedAt = defaultPrintFinishedAt;
+  String? printName;
+  double? nozzleTempWanted;
+  double? nozzleTempHave;
+  double? heatbedTempWanted;
+  double? heatbedTempHave;
+  int? printFinishedAt;
   List<FlSpot> temperatureHistory = [];
 }
 
 class _PrinterInformationState extends State<PrinterInformation> {
+  static const String defaultPrintName = "Kein laufender Druck";
+  static const int defaultNozzleTempWanted = 0;
+  static const int defaultNozzleTempHave = 0;
+  static const int defaultHeatbedTempWanted = 0;
+  static const int defaultHeatbedTempHave = 0;
+
   void onPreheatClicked() {
     // TODO Implement.
   }
@@ -63,33 +64,20 @@ class _PrinterInformationState extends State<PrinterInformation> {
             const Divider(
               color: Colors.grey,
             ),
+            // Makes sure the Column is taking the full width.
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: SizedBox(
-                    height: 100,
-                    child: AspectRatio(
-                      aspectRatio: 16.0 / 9.0,
-                      child: Container(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  width: 8,
-                ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.printerInformationState.printName),
-                    Text("Fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.printerInformationState.printFinishedAt)))}"),
+                    const SizedBox(height: 8),
+                    Text(widget.printerInformationState.printName ?? defaultPrintName),
+                    const SizedBox(height: 8),
+                    if (widget.printerInformationState.printFinishedAt != null)
+                      Text("Fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.printerInformationState.printFinishedAt ?? 0)))}"),
+                    const SizedBox(height: 8),
                   ],
-                )
+                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -106,13 +94,15 @@ class _PrinterInformationState extends State<PrinterInformation> {
                 Row(
                   children: [
                     const Icon(Printer4Web.nozzle),
-                    Text("${widget.printerInformationState.nozzleTempHave.round()}/${widget.printerInformationState.nozzleTempWanted.round()}°C")
+                    Text(
+                        "${widget.printerInformationState.nozzleTempHave?.round() ?? defaultNozzleTempHave}/${widget.printerInformationState.nozzleTempWanted?.round() ?? defaultNozzleTempWanted}°C")
                   ],
                 ),
                 Row(
                   children: [
                     const Icon(Printer4Web.heatplate),
-                    Text("${widget.printerInformationState.heatbedTempHave.round()}/${widget.printerInformationState.heatbedTempWanted.round()}°C")
+                    Text(
+                        "${widget.printerInformationState.heatbedTempHave?.round() ?? defaultHeatbedTempHave}/${widget.printerInformationState.heatbedTempWanted?.round() ?? defaultHeatbedTempWanted}°C")
                   ],
                 )
               ],
@@ -136,7 +126,6 @@ class _PrinterInformationState extends State<PrinterInformation> {
       ),
     );
   }
-
 
   Future<void> _launchPrusalinkSite(BuildContext context) async {
     final theme = Theme.of(context);
@@ -170,3 +159,5 @@ class _PrinterInformationState extends State<PrinterInformation> {
     }
   }
 }
+
+// Custom ImageProvider that enables access to files requiring digest authentication. It essentially downloads the image using a digest authentication client and then converts it in a form that is displayable in the app.

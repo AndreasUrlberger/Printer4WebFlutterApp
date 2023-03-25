@@ -31,6 +31,7 @@ class PrintProfile {
 }
 
 class AppHousingState {
+  bool connectionStatus = false;
   double innerTempTop = 0;
   double innerTempBottom = 0;
   double outerTemp = 0;
@@ -50,13 +51,11 @@ class AppHousingState {
 }
 
 class _HousingInformationState extends State<HousingInformation> {
-  bool status = true;
   final tempInputController = TextEditingController();
   final nameInputController = TextEditingController();
 
   void onStatusSwitchChanged(bool value) {
     setState(() {
-      status = value;
       PrinterHttpApi.shutdown();
     });
   }
@@ -151,11 +150,6 @@ class _HousingInformationState extends State<HousingInformation> {
       ),
     );
 
-    // Print name and temp of each profile
-    print("WebProfiles: ${widget.housingState.printProfiles.map((profile) => "${profile.name} ${profile.temperature}").join(", ")}");
-    print("Profiles: ${profiles.map((profile) => "${profile.value?.name} ${profile.value?.temperature}").join(", ")}");
-    print("Selected profile: ${widget.housingState.selectedProfile?.name} ${widget.housingState.selectedProfile?.temperature}");
-
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8),
@@ -165,7 +159,7 @@ class _HousingInformationState extends State<HousingInformation> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [const Text("Status"), Switch(value: status, onChanged: onStatusSwitchChanged)],
+              children: [const Text("Status"), Switch(value: widget.housingState.connectionStatus, onChanged: onStatusSwitchChanged)],
             ),
             const Divider(
               color: Colors.grey,
