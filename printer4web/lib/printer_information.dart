@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/printer_settings.dart';
+import 'package:printer4web/prusalink_api.dart';
 import 'printer_chart.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 
@@ -36,8 +37,28 @@ class _PrinterInformationState extends State<PrinterInformation> {
   static const int defaultHeatbedTempWanted = 0;
   static const int defaultHeatbedTempHave = 0;
 
+  static const int heatbedPreheatTemp = 85;
+  static const int nozzlePreheatTemp = 250;
+
   void onPreheatClicked() {
-    // TODO Implement.
+    // Wait for the result of both calls and then show a toast message.
+    Future.wait([makePreheatHeatbedRequest(heatbedPreheatTemp), makePreheatNozzleRequest(nozzlePreheatTemp)]).then((success) {
+      if (!success[0] || !success[1]) {
+        print("Error preheating heatbed or nozzle");
+        // Show failure message.
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Failed preheating heatbed or nozzle"),
+          duration: Duration(seconds: 5),
+        ));
+      }
+    }, onError: (error) {
+      print("Error preheating heatbed or nozzle: $error");
+      // Show failure message.
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Failed preheating heatbed or nozzle"),
+      duration: Duration(seconds: 5),
+      ));
+    });
   }
 
   void onStatusSwitchChanged(bool value) {
@@ -45,8 +66,24 @@ class _PrinterInformationState extends State<PrinterInformation> {
   }
 
   void onCoolDownClicked() {
-    // TODO Implement.
-  }
+    // Wait for the result of both calls and then show a toast message.
+    Future.wait([makePreheatHeatbedRequest(0), makePreheatNozzleRequest(0)]).then((success) {
+      if (!success[0] || !success[1]) {
+        print("Error cooling down heatbed or nozzle");
+        // Show failure message.
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Failed cooling down heatbed or nozzle"),
+          duration: Duration(seconds: 5),
+        ));
+      }
+    }, onError: (error) {
+      print("Error cooling down heatbed or nozzle: $error");
+      // Show failure message.
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Failed cooling down heatbed or nozzle"),
+        duration: Duration(seconds: 5),
+      ));
+    });  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +148,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(onPressed: onPreheatClicked, child: const Text("Preheat")),
-                ElevatedButton(onPressed: onPreheatClicked, child: const Text("Cool Down")),
+                ElevatedButton(onPressed: onCoolDownClicked, child: const Text("Cool Down")),
               ],
             ),
             const SizedBox(height: 16),

@@ -12,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Flutter Printer4Web',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // Define the default brightness and colors.

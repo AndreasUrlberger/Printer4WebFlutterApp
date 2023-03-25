@@ -66,3 +66,37 @@ Future<PrusalinkFilesData?> makeFilesRequest(String filesLink) async {
     },
   );
 }
+
+// Request to preheat printer nozzle.
+Future<bool> makePreheatNozzleRequest(int targetTemp) async {
+  final Uri uri = Uri.http(corsProxyAddress, prusalinkPreheatNozzleApi);
+  var client = DigestAuthClient(prusalinkUsername, prusalinkPassword);
+  final String json = "{\"command\":\"target\",\"targets\":{\"tool0\":$targetTemp}}";
+
+  return client.post(uri, headers: {"x-requested-with": "XMLHttpRequest", "Content-Type":"application/json"}, body: json).then(
+    (response) {
+      return (200 <= response.statusCode && response.statusCode <= 299);
+    },
+    onError: (error, stack) {
+      print("Http api request to preheat printer nozzle: $error, stack: $stack");
+      return false;
+    },
+  );
+}
+
+// Request to preheat printer heatbed.
+Future<bool> makePreheatHeatbedRequest(int targetTemp) async {
+  final Uri uri = Uri.http(corsProxyAddress, prusalinkPreheatBedApi);
+  var client = DigestAuthClient(prusalinkUsername, prusalinkPassword);
+  final String json = "{\"command\": \"target\",\"target\": $targetTemp}";
+
+  return client.post(uri, headers: {"x-requested-with": "XMLHttpRequest", "Content-Type":"application/json"}, body: json).then(
+    (response) {
+      return (200 <= response.statusCode && response.statusCode <= 299);
+    },
+    onError: (error, stack) {
+      print("Http api request to preheat printer heatbed: $error, stack: $stack");
+      return false;
+    },
+  );
+}

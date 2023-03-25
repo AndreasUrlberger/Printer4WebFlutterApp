@@ -6,8 +6,7 @@ class PrusalinkPrinterData {
   });
 
   factory PrusalinkPrinterData.fromJson(Map<String, dynamic> json) {
-    return PrusalinkPrinterData(
-        temperature: Temperature.fromJson(json["temperature"]));
+    return PrusalinkPrinterData(temperature: Temperature.fromJson(json["temperature"]));
   }
 }
 
@@ -52,7 +51,6 @@ class Heatbed {
     );
   }
 }
-
 
 // Job json example: {
 //

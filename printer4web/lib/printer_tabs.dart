@@ -30,15 +30,16 @@ class PrinterAppState {
   AppHousingState housingState = AppHousingState();
 }
 
-class _PrinterTabsState extends State<PrinterTabs> {
+class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver{
   late Timer timer;
+  AppLifecycleState state = AppLifecycleState.resumed;
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
-        appBar: AppBar(title: const Text("App Title")),
+        appBar: AppBar(title: const Text("Printer4Web")),
         bottomNavigationBar: Container(
           color: Theme.of(context).colorScheme.primary,
           child: const TabBar(
@@ -69,6 +70,7 @@ class _PrinterTabsState extends State<PrinterTabs> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     runTimedTasks(null);
 
@@ -79,6 +81,10 @@ class _PrinterTabsState extends State<PrinterTabs> {
   }
 
   void runTimedTasks(Timer? t) {
+    if(state != AppLifecycleState.resumed) {
+      return;
+    }
+
     prusaDataRequest(t);
     sendPrinterStatusRequest(t);
   }
@@ -172,8 +178,14 @@ class _PrinterTabsState extends State<PrinterTabs> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    this.state = state;
+  }
+
+  @override
   void dispose() {
     timer.cancel();
     super.dispose();
   }
 }
+

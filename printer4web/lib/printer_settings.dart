@@ -12,3 +12,5 @@ const String prusalinkPrinterApi = "$prusalinkAddress/api/printer";
 const String prusalinkJobApi = "$prusalinkAddress/api/job";
 const String prusalinkFilesApi = "$prusalinkAddress/api/files/local";
 const String prusalinkThumbnailApi = "$prusalinkAddress/api/thumbnails";
+const String prusalinkPreheatNozzleApi = "$prusalinkAddress/api/printer/tool";
+const String prusalinkPreheatBedApi = "$prusalinkAddress/api/printer/bed";
