@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:printer4web/app_config.dart';
 import 'printer_tabs.dart';
 
 void main() {
@@ -15,13 +16,17 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Printer4Web',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: colorPrimary),
         // Define the default brightness and colors.
         brightness: Brightness.light,
-        primarySwatch: Colors.amber,
+        primaryColor: colorPrimary,
+        tabBarTheme: TabBarTheme(
+            labelColor: colorPrimary,
+            indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(color: colorPrimary,width: 4))),
       ),
       home: PrinterTabs(),
     );
   }
 }
-
-
+// TabBarTheme that makes background of TabBar orange.

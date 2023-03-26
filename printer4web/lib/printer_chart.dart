@@ -8,9 +8,6 @@ import 'package:tuple/tuple.dart';
 class PrinterChart extends StatefulWidget {
   const PrinterChart({super.key, required this.history});
 
-  final Color sinColor = Colors.amberAccent;
-  final Color cosColor = Colors.amber;
-
   final List<FlSpot> history;
 
   @override
@@ -135,7 +132,7 @@ class _PrinterChartState extends State<PrinterChart> {
         show: false,
       ),
       gradient: LinearGradient(
-        colors: [widget.sinColor.withOpacity(0), widget.sinColor],
+        colors: [Theme.of(context).primaryColor.withOpacity(0), Theme.of(context).primaryColor],
         stops: const [0.0, 0.2],
       ),
       barWidth: 4,

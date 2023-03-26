@@ -28,7 +28,9 @@ class AppHomePageState {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
+    final Size size = MediaQuery
+        .of(context)
+        .size;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -43,7 +45,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 16,
         ),
-        charUI(context)
+        chartUI(context)
       ],
     );
   }
@@ -53,7 +55,7 @@ class _HomePageState extends State<HomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(flex: 1, child: charUI(context)),
+        Expanded(flex: 1, child: chartUI(context)),
         const SizedBox(
           width: 32,
         ),
@@ -91,7 +93,7 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
-  Widget charUI(BuildContext context) {
+  Widget chartUI(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: ClipRRect(
@@ -99,11 +101,11 @@ class _HomePageState extends State<HomePage> {
         child: kIsWeb
             ? const MjpgWebView()
             : const Mjpeg(
-                stream: mjpgStreamAddress,
-                isLive: true,
-                error: onMjpgError,
-                timeout: Duration(seconds: 10),
-              ),
+          stream: mjpgStreamAddress,
+          isLive: true,
+          error: onMjpgError,
+          timeout: Duration(seconds: 10),
+        ),
       ),
     );
   }
@@ -126,9 +128,9 @@ Widget onMjpgError(BuildContext context, dynamic error, dynamic stack) {
       alignment: Alignment.center,
       child: Center(
           child: Text(
-        "$error",
-        style: const TextStyle(color: Colors.white),
-      )));
+            "$error",
+            style: const TextStyle(color: Colors.white),
+          )));
 }
 
 class MjpgWebView extends StatefulWidget {
