@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 import 'package:printer4web/printer_http_api.dart';
@@ -15,7 +16,6 @@ class PrinterTabs extends StatefulWidget {
   PrinterTabs({super.key});
 
   final PrinterAppState appState = PrinterAppState();
-
   static const num timerPeriod = 1;
   static const num historySeconds = 120;
   static const num numHistoryElements = historySeconds / timerPeriod;
@@ -30,58 +30,70 @@ class PrinterAppState {
   AppHousingState housingState = AppHousingState();
 }
 
-class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver{
-  late Timer timer;
+class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, TickerProviderStateMixin {
   AppLifecycleState state = AppLifecycleState.resumed;
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(title: const Text("Printer4Web")),
-        bottomNavigationBar: Container(
-          color: Theme.of(context).colorScheme.primary,
-          child: const TabBar(
-            tabs: [
-              Tab(
-                icon: Icon(Icons.home_outlined),
-              ),
-              Tab(
-                icon: Icon(Printer4Web.printer_3d),
-              ),
-              Tab(
-                icon: Icon(Printer4Web.housing),
-              ),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          children: [
-            HomePage(homePageState: widget.appState.homePageState, pressDebugButton: prusaDataRequest),
-            PrinterInformation(printerInformationState: widget.appState.printerInformationState),
-            HousingInformation(housingState: widget.appState.housingState),
-          ],
-        ),
-      ),
-    ); //const MyHomePage(title: 'Printer4Web'),;
-  }
+  late final List<String> _tabNames;
+  late Timer _timer;
+  late TabController _controller;
+  late String _appbarTitle;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _tabNames = ["Printer4Web", "Druckerinfo", "Gehäuseinfo"];
+    _controller = TabController(length: 3, vsync: this);
+    _controller.addListener(() {
+      setState(() {
+        _appbarTitle = _tabNames[_controller.index];
+      });
+    });
+    _appbarTitle = _tabNames[0];
 
     runTimedTasks(null);
-
-    timer = Timer.periodic(
+    _timer = Timer.periodic(
       Duration(seconds: PrinterTabs.timerPeriod.round()),
       runTimedTasks,
     );
   }
 
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      appBar: (kIsWeb || size.aspectRatio <= 1)
+          ? AppBar(
+              title: Text(_appbarTitle.toString()),
+            )
+          : null,
+      bottomNavigationBar: TabBar(
+        controller: _controller,
+        tabs: const <Tab>[
+          Tab(
+            icon: Icon(Icons.home_outlined),
+          ),
+          Tab(
+            icon: Icon(Printer4Web.printer_3d),
+          ),
+          Tab(
+            icon: Icon(Printer4Web.housing),
+          ),
+        ],
+      ),
+      body: TabBarView(
+        controller: _controller,
+        children: [
+          HomePage(homePageState: widget.appState.homePageState, pressDebugButton: prusaDataRequest),
+          PrinterInformation(printerInformationState: widget.appState.printerInformationState),
+          HousingInformation(housingState: widget.appState.housingState),
+        ],
+      ),
+    );
+  }
+
   void runTimedTasks(Timer? t) {
-    if(state != AppLifecycleState.resumed) {
+    if (state != AppLifecycleState.resumed) {
       return;
     }
 
@@ -114,7 +126,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver{
           });
         } else {
           widget.appState.printerInformationState.prusalinkStatus = false;
-          print("Prusalink data could not get fetched.");
+          print("Prusalink printer data could not get fetched.");
         }
         // Just use the same data again.
         setState(() {
@@ -140,10 +152,10 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver{
               ..printName = prusalinkData.job.file.name;
           });
         } else {
-          print("Prusalink data could not get fetched.");
+          print("Prusalink job data could not get fetched.");
           widget.appState.printerInformationState
             ..estimatedPrintTime = null
-            ..prusalinkStatus = true
+            ..prusalinkStatus = false
             ..printName = null;
         }
       },
@@ -184,8 +196,8 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver{
 
   @override
   void dispose() {
-    timer.cancel();
+    _controller.dispose();
+    _timer.cancel();
     super.dispose();
   }
 }
-

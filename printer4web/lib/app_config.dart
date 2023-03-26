@@ -1,0 +1,1 @@
+const double wideLayoutThreshold = 1.2;

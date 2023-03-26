@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:printer4web/printer_settings.dart';
 import 'package:webviewx/webviewx.dart';
 
+import 'app_config.dart';
+
 class HomePage extends StatefulWidget {
   HomePage({super.key, required this.homePageState, required this.pressDebugButton});
 
@@ -18,65 +20,90 @@ class HomePage extends StatefulWidget {
 }
 
 class AppHomePageState {
-
   String? printName;
   int? printProgress;
   int? printTimeLeft;
 }
 
 class _HomePageState extends State<HomePage> {
-  static const String defaultPrintName = "Kein laufender Druck";
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${widget.homePageState.printProgress ?? 0}%")],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          LinearProgressIndicator(
-            value: (widget.homePageState.printProgress?.toDouble() ?? 0) / 100.0,
-            semanticsLabel: 'Print progress indicator',
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          if(widget.homePageState.printTimeLeft != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft!)))}"),
-              Text("-${formatDeltaTime(widget.homePageState.printTimeLeft!)}"),
-            ],
-          ),
-          const SizedBox(
-            height: 16,
-          ),
-          AspectRatio(
-            aspectRatio: 16 / 9,
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
-                child: kIsWeb
-                    ? const MjpgWebView()
-                    : const Mjpeg(
-                        stream: mjpgStreamAddress,
-                        isLive: true,
-                        error: onMjpgError,
-                        timeout: Duration(seconds: 10),
-                      )
+    final Size size = MediaQuery.of(context).size;
 
-                /*Container(
-                    color: Colors.black,
-                  ),*/
-                ),
-          )
-        ]),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
+    );
+  }
+
+  Widget verticalLayout(BuildContext context) {
+    return Column(
+      children: [
+        progressUI(context),
+        const SizedBox(
+          height: 16,
+        ),
+        charUI(context)
+      ],
+    );
+  }
+
+  Widget horizontalLayout(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 1, child: charUI(context)),
+        const SizedBox(
+          width: 32,
+        ),
+        Expanded(flex: 1, child: progressUI(context)),
+      ],
+    );
+  }
+
+  Widget progressUI(BuildContext context) {
+    const String defaultPrintName = "Kein laufender Druck";
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${widget.homePageState.printProgress ?? 0}%")],
+      ),
+      const SizedBox(
+        height: 16,
+      ),
+      LinearProgressIndicator(
+        value: (widget.homePageState.printProgress?.toDouble() ?? 0) / 100.0,
+        semanticsLabel: 'Print progress indicator',
+      ),
+      const SizedBox(
+        height: 16,
+      ),
+      if (widget.homePageState.printTimeLeft != null)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft!)))}"),
+            Text("-${formatDeltaTime(widget.homePageState.printTimeLeft!)}"),
+          ],
+        ),
+    ]);
+  }
+
+  Widget charUI(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8.0),
+        child: kIsWeb
+            ? const MjpgWebView()
+            : const Mjpeg(
+                stream: mjpgStreamAddress,
+                isLive: true,
+                error: onMjpgError,
+                timeout: Duration(seconds: 10),
+              ),
       ),
     );
   }
@@ -111,7 +138,7 @@ class MjpgWebView extends StatefulWidget {
   State<MjpgWebView> createState() => _MjgWebViewState();
 }
 
-class _MjgWebViewState extends State<MjpgWebView> {
+class _MjgWebViewState extends State<MjpgWebView> with AutomaticKeepAliveClientMixin<MjpgWebView> {
   late WebViewXController webviewController;
 
   bool imageLoadError = false;
@@ -184,4 +211,7 @@ class _MjgWebViewState extends State<MjpgWebView> {
       height: 999999,
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

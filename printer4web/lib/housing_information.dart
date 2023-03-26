@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/printer_http_api.dart';
 
+import 'app_config.dart';
 import 'printer_chart.dart';
 
 class HousingInformation extends StatefulWidget {
@@ -41,7 +42,7 @@ class AppHousingState {
 
   double tempOverallHave = 0;
   double tempOverallWant = 0;
-  double fanSpeed = 0.8;
+  double fanSpeed = 0.0;
 
   List<FlSpot> history = [];
 
@@ -124,6 +125,8 @@ class _HousingInformationState extends State<HousingInformation> {
 
   @override
   Widget build(BuildContext context) {
+    final MediaQueryData queryData = MediaQuery.of(context);
+
     final List<DropdownMenuItem<PrintProfile>> profiles;
     profiles = widget.housingState.printProfiles
         .map((printConfig) => DropdownMenuItem(
@@ -150,103 +153,131 @@ class _HousingInformationState extends State<HousingInformation> {
       ),
     );
 
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [const Text("Status"), Switch(value: widget.housingState.connectionStatus, onChanged: onStatusSwitchChanged)],
-            ),
-            const Divider(
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 8),
-            Container(
-              alignment: Alignment.centerLeft,
-              child: const Text("Temperatur", textAlign: TextAlign.start),
-            ),
-            const Divider(
-              color: Colors.grey,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: queryData.size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context, profiles) : verticalLayout(context, profiles),
+    );
+  }
+
+  Widget verticalLayout(BuildContext context, List<DropdownMenuItem<PrintProfile>> profiles) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        statisticsLayout(context, profiles),
+        const SizedBox(height: 16),
+        chartLayout(context),
+      ],
+    );
+  }
+
+  Widget horizontalLayout(BuildContext context, List<DropdownMenuItem<PrintProfile>> profiles) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: statisticsLayout(context, profiles),
+        ),
+        const SizedBox(width: 32),
+        Expanded(
+          child: chartLayout(context),
+        ),
+      ],
+    );
+  }
+
+  Widget statisticsLayout(BuildContext context, List<DropdownMenuItem<PrintProfile>> profiles) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [const Text("Status"), Switch(value: widget.housingState.connectionStatus, onChanged: onStatusSwitchChanged)],
+        ),
+        const Divider(
+          color: Colors.grey,
+        ),
+        const SizedBox(height: 8),
+        Container(
+          alignment: Alignment.centerLeft,
+          child: const Text("Temperatur", textAlign: TextAlign.start),
+        ),
+        const Divider(
+          color: Colors.grey,
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.crop_square_rounded),
-                      Text("${widget.housingState.outerTemp.round()}°C"),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.maximize),
-                      Text("${widget.housingState.innerTempTop.round()}°C"),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Icon(Icons.minimize),
-                      Text("${widget.housingState.innerTempBottom.round()}°C"),
-                    ],
-                  ),
+                  const Icon(Icons.crop_square_rounded),
+                  Text("${widget.housingState.outerTemp.round()}°C"),
                 ],
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [const Text("Temperaturregelung"), Switch(value: widget.housingState.isTempControlActive, onChanged: onTempControlChanged)],
-            ),
-            const Divider(
-              color: Colors.grey,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text("Profil:"),
-                DropdownButton(
-                  alignment: Alignment.centerRight,
-                  value: widget.housingState.selectedProfile,
-                  items: profiles,
-                  onChanged: onProfileChanged,
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.heat_pump),
-                    Text("${(widget.housingState.fanSpeed * 100).round().clamp(0, 100)}%"),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.square_outlined),
-                    Text("${widget.housingState.tempOverallHave.round()}/${widget.housingState.tempOverallWant.round()}°C"),
-                  ],
-                )
-              ],
-            ),
-            const SizedBox(height: 16),
-            AspectRatio(
-              aspectRatio: 16.0 / 9.0,
-              child: PrinterChart(history: widget.housingState.history),
-            ),
+              Row(
+                children: [
+                  const Icon(Icons.maximize),
+                  Text("${widget.housingState.innerTempTop.round()}°C"),
+                ],
+              ),
+              Row(
+                children: [
+                  const Icon(Icons.minimize),
+                  Text("${widget.housingState.innerTempBottom.round()}°C"),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [const Text("Temperaturregelung"), Switch(value: widget.housingState.isTempControlActive, onChanged: onTempControlChanged)],
+        ),
+        const Divider(
+          color: Colors.grey,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text("Profil:"),
+            DropdownButton(
+              alignment: Alignment.centerRight,
+              value: widget.housingState.selectedProfile,
+              items: profiles,
+              onChanged: onProfileChanged,
+            )
           ],
         ),
-      ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.heat_pump),
+                Text("${(widget.housingState.fanSpeed * 100).round().clamp(0, 100)}%"),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Icon(Icons.square_outlined),
+                Text("${widget.housingState.tempOverallHave.round()}/${widget.housingState.tempOverallWant.round()}°C"),
+              ],
+            )
+          ],
+        ),
+      ],
     );
+  }
+
+  Widget chartLayout(BuildContext context) {
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: AspectRatio(aspectRatio: 16/9, child: PrinterChart(history: widget.housingState.history)));
   }
 
 // Returns a dialog for entering a name and a temperature of a new print profile. The dialog has a header with the title "Neues Profil erstellen", a text field for the name and a text field for the temperature. The temperature text field has a green border if the entered text is a valid temperature and a red border if the entered text is not a valid temperature. The dialog has two buttons, one for canceling the dialog and one for creating the new profile. The dialog is closed when the cancel button is pressed or when the create button is pressed and the entered text is a valid temperature.

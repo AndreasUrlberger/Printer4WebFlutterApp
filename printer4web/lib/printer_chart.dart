@@ -39,11 +39,6 @@ class _PrinterChartState extends State<PrinterChart> {
     return Text("${value.round()}", textAlign: TextAlign.left, style: TextStyle(color: Color.lerp(a, b, opacity)));
   }
 
-  double roundProperly(double value) {
-    var rounded = (value * 50).round() / 50;
-    return rounded;
-  }
-
   Tuple3<int, int, int> getBounds(double lowest, double highest, int minInterval, int wantedIntervals) {
     int lower = lowest.floor();
     int upper = highest.ceil();
