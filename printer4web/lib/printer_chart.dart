@@ -37,41 +37,60 @@ class _PrinterChartState extends State<PrinterChart> {
   }
 
   Tuple3<int, int, int> getBounds(double lowest, double highest, int minInterval, int wantedIntervals) {
-    int lower = lowest.floor();
-    int upper = highest.ceil();
+    final int bufferedLower = (lowest - (highest - lowest) * 0.20).floor();
+    final int bufferedUpper = (highest + (highest - lowest) * 0.20).ceil();
+    final minSpan = minInterval * wantedIntervals;
 
-    final int lowerBound;
-    final int upperBound;
-    final int interval;
 
-    if ((upper - lower) < (minInterval * wantedIntervals)) {
-      final int diff = upper - lower;
-      final int missing = (minInterval * wantedIntervals) - diff;
+    if(bufferedUpper - bufferedLower < minSpan) {
+      // The span is too small. Add buffer to both sides.
+      final int span = bufferedUpper - bufferedLower;
+      final int missingSpan = minSpan - span;
 
-      lower -= missing ~/ 2;
-      upper += missing ~/ 2;
+      // Add half of the missing span to the lower bound and the other half to the upper bound.
+      // If the missing span is odd, add the extra 1 to the bound that is closer to an original bound.
+      int lowerBound = bufferedLower - missingSpan ~/ 2;
+      int upperBound = bufferedUpper + missingSpan ~/ 2;
 
-      if (missing % 2 != 0) {
-        final double distanceToUpper = (upper - highest).abs();
-        final double distanceToLower = (lowest - lower).abs();
-        if (distanceToUpper < distanceToLower) {
-          upper += 1;
+      if(missingSpan % 2 != 0) {
+        final double distanceToUpper = bufferedUpper - highest;
+        final double distanceToLower = lowest - bufferedLower;
+        if(distanceToUpper < distanceToLower) {
+          upperBound += 1;
         } else {
-          lower -= 1;
+          lowerBound -= 1;
         }
       }
 
-      lowerBound = lower;
-      upperBound = upper;
-      interval = minInterval;
-    } else {
-      lowerBound = lowest.ceil() - 1;
-      upperBound = highest.floor() + 1;
+      // The span is now guaranteed to be divisible by the interval exactly wantedInterval times.
+      final interval = (upperBound - lowerBound) ~/ wantedIntervals;
+      return Tuple3(lowerBound, upperBound, interval);
+    }else{
+      // Extend the bounds equally such that the span is divisible by the interval exactly wantedInterval times.
+      final int span = bufferedUpper - bufferedLower;
+      // Get the next higher multiple of wantedIntervals and minInterval. The calculation is using only integers to avoid rounding errors.
+      final int nextHigherMultiple = ((span + minSpan - 1) ~/ minSpan) * minSpan;
 
-      interval = (upperBound - lowerBound) ~/ wantedIntervals;
+      // Now add the difference equally to both sides.
+      final int missingSpan = nextHigherMultiple - span;
+      int lowerBound = bufferedLower - missingSpan ~/ 2;
+      int upperBound = bufferedUpper + missingSpan ~/ 2;
+
+      // Add the extra 1 to the bound that is closer to an original bound.
+      if(missingSpan % 2 != 0) {
+        final double distanceToUpper = bufferedUpper - highest;
+        final double distanceToLower = lowest - bufferedLower;
+        if(distanceToUpper < distanceToLower) {
+          upperBound += 1;
+        } else {
+          lowerBound -= 1;
+        }
+      }
+
+      final int interval = nextHigherMultiple ~/ wantedIntervals;
+      return Tuple3(lowerBound, upperBound, interval);
     }
 
-    return Tuple3(lowerBound, upperBound, interval);
   }
 
   @override

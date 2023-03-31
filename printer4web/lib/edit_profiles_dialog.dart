@@ -30,6 +30,7 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
 
   @override
   void initState() {
+    super.initState();
     selectedIndex = widget.housingState.printProfiles.indexWhere((profile) => profile == widget.housingState.selectedProfile);
 
     tempInputValid = widget.tempPattern.hasMatch(widget.tempInputController.text);

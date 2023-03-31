@@ -103,8 +103,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
       children: [
         mainUI(context),
         const SizedBox(height: 16),
-        chartUI(context),/*
-        const Spacer(),*/
+        chartUI(context),
         ElevatedButton(onPressed: () => _launchPrusalinkSite(context), child: const Text("PrusaLink")),
       ],
     );
@@ -161,38 +160,63 @@ class _PrinterInformationState extends State<PrinterInformation> {
         const Divider(
           color: Colors.grey,
         ),
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              children: [
-                const Icon(Printer4Web.nozzle),
-                Text(
-                    "${widget.printerInformationState.nozzleTempHave?.round() ?? defaultNozzleTempHave}/${widget.printerInformationState.nozzleTempWanted?.round() ?? defaultNozzleTempWanted}°C")
-              ],
+          children: <Widget>[
+            Expanded(
+              child: Center(
+                child: Row( mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Printer4Web.nozzle),
+                    Text(
+                        "${widget.printerInformationState.nozzleTempHave?.round() ?? defaultNozzleTempHave}/${widget.printerInformationState.nozzleTempWanted?.round() ?? defaultNozzleTempWanted}°C")
+                  ],
+                ),
+              ),
             ),
-            Row(
-              children: [
-                const Icon(Printer4Web.heatplate),
-                Text(
-                    "${widget.printerInformationState.heatbedTempHave?.round() ?? defaultHeatbedTempHave}/${widget.printerInformationState.heatbedTempWanted?.round() ?? defaultHeatbedTempWanted}°C")
-              ],
-            )
+            const SizedBox(width: 16),
+            Expanded(
+              child: Center(
+                  child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Printer4Web.heatplate),
+                  Text(
+                      "${widget.printerInformationState.heatbedTempHave?.round() ?? defaultHeatbedTempHave}/${widget.printerInformationState.heatbedTempWanted?.round() ?? defaultHeatbedTempWanted}°C")
+                ],
+              )),
+            ),
           ],
         ),
+
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(onPressed: onPreheatClicked, child: const Text("Preheat")),
-            ElevatedButton(onPressed: onCoolDownClicked, child: const Text("Cool Down")),
+          children: <Widget>[
+            Expanded(
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: onPreheatClicked,
+                  child: const Text("Preheat"),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Center(
+                child: ElevatedButton(
+                  onPressed: onCoolDownClicked,
+                  child: const Text("Cool Down"),
+                ),
+              ),
+            ),
           ],
-        ),
+        )
       ],
     );
   }
 
   Widget chartUI(BuildContext context) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: AspectRatio(aspectRatio: 16/9, child: PrinterChart(history: widget.printerInformationState.temperatureHistory)));
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: AspectRatio(aspectRatio: 16 / 9, child: PrinterChart(history: widget.printerInformationState.temperatureHistory)));
   }
 
   Future<void> _launchPrusalinkSite(BuildContext context) async {
