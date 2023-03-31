@@ -1,8 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/printer_settings.dart';
+import 'package:printer4web/web_view_mjpg.dart';
 import 'package:webviewx/webviewx.dart';
 
 import 'app_config.dart';
@@ -28,14 +27,14 @@ class AppHomePageState {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery
-        .of(context)
-        .size;
+    final Size size = MediaQuery.of(context).size;
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
-    );
+    return Container(
+        color: const Color.fromARGB(255, 60, 60, 60),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
+        ));
   }
 
   Widget verticalLayout(BuildContext context) {
@@ -45,7 +44,7 @@ class _HomePageState extends State<HomePage> {
         const SizedBox(
           height: 16,
         ),
-        chartUI(context)
+        streamerUI(context)
       ],
     );
   }
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(flex: 1, child: chartUI(context)),
+        Expanded(flex: 1, child: streamerUI(context)),
         const SizedBox(
           width: 32,
         ),
@@ -93,20 +92,20 @@ class _HomePageState extends State<HomePage> {
     ]);
   }
 
-  Widget chartUI(BuildContext context) {
+  Widget streamerUI(BuildContext context) {
     return AspectRatio(
       aspectRatio: 16 / 9,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: kIsWeb
-            ? const MjpgWebView()
-            : const Mjpeg(
-          stream: mjpgStreamAddress,
-          isLive: true,
-          error: onMjpgError,
-          timeout: Duration(seconds: 10),
-        ),
-      ),
+          borderRadius: BorderRadius.circular(8.0),
+          child: Stack(
+            children: [
+              Container(
+            color: Colors.black,
+            alignment: Alignment.center,
+          ),
+              HtmlView(),
+            ],
+          )),
     );
   }
 }
@@ -128,21 +127,21 @@ Widget onMjpgError(BuildContext context, dynamic error, dynamic stack) {
       alignment: Alignment.center,
       child: Center(
           child: Text(
-            "$error",
-            style: const TextStyle(color: Colors.white),
-          )));
+        "$error",
+        style: const TextStyle(color: Colors.white),
+      )));
 }
 
-class MjpgWebView extends StatefulWidget {
-  const MjpgWebView({super.key});
+/*class MjpgWebView extends StatefulWidget {
+  MjpgWebView({super.key});
+
+  WebViewXController? webviewController;
 
   @override
   State<MjpgWebView> createState() => _MjgWebViewState();
 }
 
 class _MjgWebViewState extends State<MjpgWebView> with AutomaticKeepAliveClientMixin<MjpgWebView> {
-  late WebViewXController webviewController;
-
   bool imageLoadError = false;
 
   String streamHtml = '''
@@ -159,16 +158,16 @@ class _MjgWebViewState extends State<MjpgWebView> with AutomaticKeepAliveClientM
   }
 
   void onWebViewCreated(WebViewXController<dynamic> controller) {
-    webviewController = controller;
+    widget.webviewController = controller;
 
     // Disable scrollbars for Internet Explorer and Edge
-    webviewController.evalRawJavascript('''
+    controller.evalRawJavascript('''
     if (window.navigator.userAgent.indexOf("Trident") > -1) {
       document.body.style.msOverflowStyle = "none";
     }''');
 
     // Hide the scrollbar for Google Chrome and Safari
-    webviewController.evalRawJavascript('''
+    controller.evalRawJavascript('''
     if (window.navigator.userAgent.indexOf("Chrome") > -1 || window.navigator.userAgent.indexOf("Safari") > -1) {
       document.documentElement.style.WebkitScrollbar = "display: none;";
     }
@@ -176,7 +175,7 @@ class _MjgWebViewState extends State<MjpgWebView> with AutomaticKeepAliveClientM
 
     // Firefox?
     // document.body.style.scrollbarWidth = "none";
-    webviewController.evalRawJavascript('document.documentElement.style.overflow = "hidden";');
+    controller.evalRawJavascript('document.documentElement.style.overflow = "hidden";');
   }
 
   void onWebError(WebResourceError error) {
@@ -184,36 +183,41 @@ class _MjgWebViewState extends State<MjpgWebView> with AutomaticKeepAliveClientM
   }
 
   void onImageLoadError(dynamic value) {
-    print("onImageLoadError");
+    print("#################################### onImageLoadError");
     setState(() {
       imageLoadError = true;
+    });
+    Future.delayed(const Duration(milliseconds: 500), () {
+    print("#################################### reload");
+      widget.webviewController?.loadContent(streamHtml, SourceType.html);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return WebViewX(
-      initialContent: streamHtml,
-      initialSourceType: SourceType.html,
-      onWebViewCreated: (controller) => onWebViewCreated(controller),
-      onWebResourceError: (error) => onWebError(error),
-      jsContent: const {
-        EmbeddedJsContent(js: """
-                      const img = document.getElementById("image")
-                      img.addEventListener("error", function(event) {
-                          //event.onerror = null
-                          onImageLoadError(null)
-                      })""")
-      },
-      dartCallBacks: {DartCallback(name: "onImageLoadError", callBack: onImageLoadError)},
-      onPageFinished: (src) {
-        print("onPageFinished: $src");
-      },
-      width: 999999,
-      height: 999999,
-    );
+    return WebViewMjpg(width: 300, height: 300, url: "");
+    // WebViewX(
+    //   initialContent: streamHtml,
+    //   initialSourceType: SourceType.html,
+    //   onWebViewCreated: (controller) => onWebViewCreated(controller),
+    //   onWebResourceError: (error) => onWebError(error),
+    //   dartCallBacks: {DartCallback(name: "onImageLoadError", callBack: onImageLoadError)},
+    //   jsContent: const {
+    //     EmbeddedJsContent(js: """
+    //                   const img = document.getElementById("image")
+    //                   img.addEventListener("error", function(event) {
+    //                       event.onerror = null
+    //                       onImageLoadError(null)
+    //                   })""")
+    //   },
+    //   onPageFinished: (src) {
+    //     print("onPageFinished: $src");
+    //   },
+    //   width: 999999,
+    //   height: 999999,
+    // );
   }
 
   @override
   bool get wantKeepAlive => true;
-}
+}*/

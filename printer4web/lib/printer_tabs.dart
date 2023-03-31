@@ -187,8 +187,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       } else {
         widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
       }
-      // Print current time and message that new data is available.
-      print(DateTime.now().toString() + " - New data available.");
+
       widget.appState.housingState.history.add(FlSpot(
         DateTime.now().millisecondsSinceEpoch.toDouble(),
         widget.appState.housingState.outerTemp,
