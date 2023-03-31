@@ -169,9 +169,11 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
 
     setState(() {
       widget.appState.housingState
-        ..innerTempBottom = printerStatus.temperatureInsideBottom
-        ..innerTempTop = printerStatus.temperatureInsideTop
-        ..outerTemp = printerStatus.temperatureOutside
+        ..innerTempBottom = printerStatus.temperatureInsideBottom / 1000
+        ..innerTempTop = printerStatus.temperatureInsideTop / 1000
+        ..outerTemp = printerStatus.temperatureOutside / 1000
+        ..tempOverallHave = printerStatus.temperatureInsideBottom / 1000
+        ..tempOverallWant = printerStatus.currentPrintConfig.temperature / 1000
         ..isTempControlActive = printerStatus.isTempControlActive
         ..connectionStatus = true
         ..fanSpeed = printerStatus.fanSpeed;
@@ -180,8 +182,13 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       for (var config in printerStatus.printConfigs) {
         widget.appState.housingState.printProfiles.add(PrintProfile(config.name, config.temperature));
       }
-      widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
-
+      if (printerStatus.currentPrintConfig.name.isEmpty) {
+        widget.appState.housingState.selectedProfile = null;
+      } else {
+        widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
+      }
+      // Print current time and message that new data is available.
+      print(DateTime.now().toString() + " - New data available.");
       widget.appState.housingState.history.add(FlSpot(
         DateTime.now().millisecondsSinceEpoch.toDouble(),
         widget.appState.housingState.outerTemp,

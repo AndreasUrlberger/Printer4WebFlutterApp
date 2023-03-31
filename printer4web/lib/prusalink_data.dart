@@ -129,12 +129,12 @@ class Job {
 }
 
 class File {
-  String name;
-  String path;
-  int size;
-  String origin;
-  int date;
-  String display;
+  String? name;
+  String? path;
+  int? size;
+  String? origin;
+  int? date;
+  String? display;
 
   File({
     required this.name,
@@ -147,12 +147,12 @@ class File {
 
   factory File.fromJson(Map<String, dynamic> json) {
     return File(
-      name: json["name"] as String,
-      path: json["path"] as String,
-      size: json["size"] as int,
-      origin: json["origin"] as String,
-      date: json["date"] as int,
-      display: json["display"] as String,
+      name: json["name"] as String?,
+      path: json["path"] as String?,
+      size: json["size"] as int?,
+      origin: json["origin"] as String?,
+      date: json["date"] as int?,
+      display: json["display"] as String?,
     );
   }
 }
