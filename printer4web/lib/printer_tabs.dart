@@ -183,12 +183,9 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
         widget.appState.housingState.printProfiles.add(PrintProfile(config.name, config.temperature));
       }
 
-      print("selected profile: '${printerStatus.currentPrintConfig.name}' '${printerStatus.currentPrintConfig.temperature}'");
       if (printerStatus.currentPrintConfig.name.isEmpty) {
-        print("selected profile is empty, resetting it to null.");
         widget.appState.housingState.selectedProfile = null;
       } else {
-        print("selected profile is not empty");
         widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
       }
 

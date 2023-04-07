@@ -26,14 +26,7 @@ class _PrinterChartState extends State<PrinterChart> {
       return const Text("");
     }
 
-    const Color a = Colors.transparent;
-    const Color b = Colors.black;
-
-    final double distanceToBounds = min((upperBound - value).abs(), (value - lowerBound).abs());
-    final double boundsPercentage = distanceToBounds / ((upperBound - lowerBound) / 2);
-    final double opacity = (boundsPercentage + 1) / 2;
-
-    return Text("${value.round()}", textAlign: TextAlign.left, style: TextStyle(color: Color.lerp(a, b, opacity)));
+    return Text("${value.round()}", textAlign: TextAlign.left);
   }
 
   Tuple3<int, int, int> getBounds(double lowest, double highest, int minInterval, int wantedIntervals) {
