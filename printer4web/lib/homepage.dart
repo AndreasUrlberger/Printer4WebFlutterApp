@@ -104,7 +104,7 @@ class HomePage extends StatefulWidget {
 
 class AppHomePageState {
   String? printName;
-  int? printProgress;
+  double? printProgress;
   int? printTimeLeft;
 }
 
@@ -151,13 +151,13 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
     return Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${widget.homePageState.printProgress ?? 0}%")],
+        children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${(widget.homePageState.printProgress ?? 0) * 100}%")],
       ),
       const SizedBox(
         height: 16,
       ),
       LinearProgressIndicator(
-        value: (widget.homePageState.printProgress?.toDouble() ?? 0) / 100.0,
+        value: (widget.homePageState.printProgress ?? 0),
         semanticsLabel: 'Print progress indicator',
       ),
       const SizedBox(

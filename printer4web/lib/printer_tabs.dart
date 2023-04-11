@@ -146,10 +146,27 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       (prusalinkData) {
         if (prusalinkData != null) {
           setState(() {
-            widget.appState.printerInformationState
-              ..estimatedPrintTime = prusalinkData.job.estimatedPrintTime
-              ..prusalinkStatus = true
-              ..printName = prusalinkData.job.file.name;
+            if (prusalinkData.state == "Printing") {
+              final String? printName = prusalinkData.job.file.name;
+              final int endIndex = (printName?.lastIndexOf("MK3S") ?? 1) - 1;
+              final String? printNameShort = printName?.substring(0, endIndex);
+
+              widget.appState.printerInformationState
+                ..estimatedPrintTime = prusalinkData.job.estimatedPrintTime
+                ..prusalinkStatus = true
+                ..printName = printNameShort;
+              widget.appState.homePageState
+                ..printProgress = prusalinkData.progress.completion
+                ..printName = printNameShort;
+            } else {
+              widget.appState.printerInformationState
+                ..estimatedPrintTime = null
+                ..prusalinkStatus = false
+                ..printName = null;
+              widget.appState.homePageState
+                ..printProgress = 0
+                ..printName = null;
+            }
           });
         } else {
           print("Prusalink job data could not get fetched.");
@@ -157,6 +174,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
             ..estimatedPrintTime = null
             ..prusalinkStatus = false
             ..printName = null;
+          widget.appState.homePageState.printProgress = null;
         }
       },
     );

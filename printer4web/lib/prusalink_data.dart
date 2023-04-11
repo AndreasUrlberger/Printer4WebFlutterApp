@@ -158,7 +158,7 @@ class File {
 }
 
 class Progress {
-  int? completion;
+  double? completion;
   int filepos;
   int? printTime;
   int? printTimeLeft;
@@ -180,7 +180,7 @@ class Progress {
 
   factory Progress.fromJson(Map<String, dynamic> json) {
     return Progress(
-      completion: json["completion"] as int?,
+      completion: json["completion"] as double?,
       filepos: json["filepos"] as int,
       printTime: json["printTime"] as int?,
       printTimeLeft: json["printTimeLeft"] as int?,
