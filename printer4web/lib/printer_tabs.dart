@@ -148,7 +148,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
           setState(() {
             if (prusalinkData.state == "Printing") {
               final String? printName = prusalinkData.job.file.name;
-              final int endIndex = (printName?.lastIndexOf("MK3S") ?? 1) - 1;
+              final int endIndex = (printName?.lastIndexOf("MK4IS") ?? 1) - 1;
               final String? printNameShort = printName?.substring(0, endIndex);
 
               widget.appState.printerInformationState
@@ -157,7 +157,8 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
                 ..printName = printNameShort;
               widget.appState.homePageState
                 ..printProgress = prusalinkData.progress.completion
-                ..printName = printNameShort;
+                ..printName = printNameShort
+                ..printTimeLeft = prusalinkData.progress.printTimeLeft;
             } else {
               widget.appState.printerInformationState
                 ..estimatedPrintTime = null
@@ -165,7 +166,8 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
                 ..printName = null;
               widget.appState.homePageState
                 ..printProgress = 0
-                ..printName = null;
+                ..printName = null
+                ..printTimeLeft = null;
             }
           });
         } else {

@@ -1,4 +1,4 @@
-const String printerIpAddress = '192.168.178.143';
+const String printerIpAddress = '192.168.178.150';
 const String prusalinkIpAddress = "192.168.178.129";
 const int serviceControllerPort = 1933;
 const int corsProxyPort = 8080;

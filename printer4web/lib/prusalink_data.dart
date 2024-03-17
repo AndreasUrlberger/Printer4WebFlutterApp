@@ -107,14 +107,12 @@ class Job {
   int? averagePrintTime;
   int? lastPrintTime;
   File file;
-  String user;
 
   Job({
     required this.estimatedPrintTime,
     required this.averagePrintTime,
     required this.lastPrintTime,
     required this.file,
-    required this.user,
   });
 
   factory Job.fromJson(Map<String, dynamic> json) {
@@ -123,7 +121,6 @@ class Job {
       averagePrintTime: json["averagePrintTime"] as int?,
       lastPrintTime: json["lastPrintTime"] as int?,
       file: File.fromJson(json["file"]),
-      user: json["user"] as String,
     );
   }
 }
@@ -159,35 +156,22 @@ class File {
 
 class Progress {
   double? completion;
-  int filepos;
   int? printTime;
   int? printTimeLeft;
-  String printTimeLeftOrigin;
-  double posZMm;
-  int printSpeed;
-  int flowFactor;
 
   Progress({
     required this.completion,
-    required this.filepos,
     required this.printTime,
     required this.printTimeLeft,
-    required this.printTimeLeftOrigin,
-    required this.posZMm,
-    required this.printSpeed,
-    required this.flowFactor,
   });
 
   factory Progress.fromJson(Map<String, dynamic> json) {
+    // Print printTimeLeft
+    print("printTimeLeft: ${json["printTimeLeft"]}");
     return Progress(
       completion: json["completion"] as double?,
-      filepos: json["filepos"] as int,
       printTime: json["printTime"] as int?,
       printTimeLeft: json["printTimeLeft"] as int?,
-      printTimeLeftOrigin: json["printTimeLeftOrigin"] as String,
-      posZMm: json["pos_z_mm"] as double,
-      printSpeed: json["printSpeed"] as int,
-      flowFactor: json["flow_factor"] as int,
     );
   }
 }

@@ -6,7 +6,8 @@ import 'package:webviewx/webviewx.dart';
 import 'app_config.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({super.key, required this.homePageState, required this.pressDebugButton});
+  HomePage(
+      {super.key, required this.homePageState, required this.pressDebugButton});
 
   AppHomePageState homePageState;
   Function pressDebugButton;
@@ -36,7 +37,7 @@ class HomePage extends StatefulWidget {
         top: calc(50% - 8vh);
         left: calc(50% - 8vh);
       }
-      
+
       @media (max-width: 600px) {
         .loader {
           border: 2.5vh solid #f3f3f3;
@@ -78,6 +79,7 @@ class HomePage extends StatefulWidget {
       }
 
       function reloadImage() {
+        console.log("reloadImage");
         var image = document.getElementById('image');
         image.style.display = 'none';
         setTimeout(function () {
@@ -86,6 +88,7 @@ class HomePage extends StatefulWidget {
       }
 
       function showImage() {
+        console.log("showImage");
         var image = document.getElementById('image');
         var loader = document.querySelector('.loader');
         image.style.display = 'block';
@@ -108,14 +111,17 @@ class AppHomePageState {
   int? printTimeLeft;
 }
 
-class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
+class _HomePageState extends State<HomePage>
+    with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
+      child: size.aspectRatio > wideLayoutThreshold
+          ? horizontalLayout(context)
+          : verticalLayout(context),
     );
   }
 
@@ -148,30 +154,38 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   Widget progressUI(BuildContext context) {
     const String defaultPrintName = "Kein laufender Druck";
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start, children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [Text(widget.homePageState.printName ?? defaultPrintName), Text("${(widget.homePageState.printProgress ?? 0) * 100}%")],
-      ),
-      const SizedBox(
-        height: 16,
-      ),
-      LinearProgressIndicator(
-        value: (widget.homePageState.printProgress ?? 0),
-        semanticsLabel: 'Print progress indicator',
-      ),
-      const SizedBox(
-        height: 16,
-      ),
-      if (widget.homePageState.printTimeLeft != null)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.homePageState.printTimeLeft!)))}"),
-            Text("-${formatDeltaTime(widget.homePageState.printTimeLeft!)}"),
-          ],
-        ),
-    ]);
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(widget.homePageState.printName ?? defaultPrintName),
+              Text("${(widget.homePageState.printProgress ?? 0) * 100}%")
+            ],
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          LinearProgressIndicator(
+            value: (widget.homePageState.printProgress ?? 0),
+            semanticsLabel: 'Print progress indicator',
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          if (widget.homePageState.printTimeLeft != null)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                    "fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(seconds: widget.homePageState.printTimeLeft!)))}"),
+                Text(
+                    "-${formatDeltaTime(widget.homePageState.printTimeLeft!)}"),
+              ],
+            ),
+        ]);
   }
 
   Widget streamerUI(BuildContext context) {
@@ -204,8 +218,8 @@ class _HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin 
   bool get wantKeepAlive => true;
 }
 
-String formatDeltaTime(int milliseconds) {
-  Duration duration = Duration(milliseconds: milliseconds);
+String formatDeltaTime(int seconds) {
+  Duration duration = Duration(seconds: seconds);
   int hours = duration.inHours;
   int minutes = duration.inMinutes.remainder(60);
 
