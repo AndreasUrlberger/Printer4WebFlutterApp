@@ -167,7 +167,6 @@ class Progress {
 
   factory Progress.fromJson(Map<String, dynamic> json) {
     // Print printTimeLeft
-    print("printTimeLeft: ${json["printTimeLeft"]}");
     return Progress(
       completion: json["completion"] as double?,
       printTime: json["printTime"] as int?,

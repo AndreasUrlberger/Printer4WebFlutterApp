@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(widget.homePageState.printName ?? defaultPrintName),
-              Text("${(widget.homePageState.printProgress ?? 0) * 100}%")
+              Text("${((widget.homePageState.printProgress ?? 0) * 100).toInt()}%")
             ],
           ),
           const SizedBox(
