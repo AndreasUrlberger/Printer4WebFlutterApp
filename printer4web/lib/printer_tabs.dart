@@ -194,9 +194,6 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
 
     setState(() {
       widget.appState.housingState
-        ..innerTempBottom = printerStatus.temperatureInsideBottom / 1000
-        ..innerTempTop = printerStatus.temperatureInsideTop / 1000
-        ..tempOverallHave = printerStatus.temperatureInsideBottom / 1000
         ..tempOverallWant = printerStatus.currentPrintConfig.temperature / 1000
         ..isTempControlActive = printerStatus.isTempControlActive
         ..connectionStatus = true
@@ -205,6 +202,15 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       if (printerStatus.temperatureOutside != 0) {
         // Only update the outer temperature if the new one is not 0.
         widget.appState.housingState.outerTemp = printerStatus.temperatureOutside / 1000;
+      }
+
+      if (printerStatus.temperatureInsideTop != 0) {
+        widget.appState.housingState.innerTempTop = printerStatus.temperatureInsideTop / 1000;
+      }
+
+      if (printerStatus.temperatureInsideBottom != 0) {
+        widget.appState.housingState.innerTempBottom = printerStatus.temperatureInsideBottom / 1000;
+        widget.appState.housingState.tempOverallHave = printerStatus.temperatureInsideBottom / 1000;
       }
 
       widget.appState.housingState.printProfiles.clear();
