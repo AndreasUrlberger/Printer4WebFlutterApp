@@ -100,6 +100,11 @@ class PrusalinkJobData {
       state: json["state"] as String,
     );
   }
+
+  @override
+  String toString() {
+    return 'Job: ${job.toString()}, Progress: ${progress.toString()}, State: $state';
+  }
 }
 
 class Job {
@@ -122,6 +127,11 @@ class Job {
       lastPrintTime: json["lastPrintTime"] as int?,
       file: File.fromJson(json["file"]),
     );
+  }
+
+  @override
+  String toString() {
+    return 'Estimated print time: $estimatedPrintTime, Average print time: $averagePrintTime, Last print time: $lastPrintTime, File: ${file.toString()}';
   }
 }
 
@@ -152,6 +162,11 @@ class File {
       display: json["display"] as String?,
     );
   }
+
+  @override
+  String toString() {
+    return 'Name: $name, Path: $path, Size: $size, Origin: $origin, Date: $date, Display: $display';
+  }
 }
 
 class Progress {
@@ -172,6 +187,11 @@ class Progress {
       printTime: json["printTime"] as int?,
       printTimeLeft: json["printTimeLeft"] as int?,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Completion: $completion, Print time: $printTime, Print time left: $printTimeLeft';
   }
 }
 

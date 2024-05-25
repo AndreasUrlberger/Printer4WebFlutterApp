@@ -148,7 +148,10 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
           setState(() {
             if (prusalinkData.state == "Printing") {
               final String? printName = prusalinkData.job.file.name;
-              final int endIndex = (printName?.lastIndexOf("MK4IS") ?? 1) - 1;
+              int endIndex = (printName?.lastIndexOf(RegExp(r"\.bgcode")) ?? 1) - 1;
+              if (endIndex < 0) {
+                endIndex = printName!.length;
+              }
               final String? printNameShort = printName?.substring(0, endIndex);
 
               widget.appState.printerInformationState
@@ -187,16 +190,22 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       widget.appState.housingState.history.removeAt(0);
     }
 
+
+
     setState(() {
       widget.appState.housingState
         ..innerTempBottom = printerStatus.temperatureInsideBottom / 1000
         ..innerTempTop = printerStatus.temperatureInsideTop / 1000
-        ..outerTemp = printerStatus.temperatureOutside / 1000
         ..tempOverallHave = printerStatus.temperatureInsideBottom / 1000
         ..tempOverallWant = printerStatus.currentPrintConfig.temperature / 1000
         ..isTempControlActive = printerStatus.isTempControlActive
         ..connectionStatus = true
         ..fanSpeed = printerStatus.fanSpeed;
+
+      if (printerStatus.temperatureOutside != 0) {
+        // Only update the outer temperature if the new one is not 0.
+        widget.appState.housingState.outerTemp = printerStatus.temperatureOutside / 1000;
+      }
 
       widget.appState.housingState.printProfiles.clear();
       for (var config in printerStatus.printConfigs) {
@@ -209,9 +218,9 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
         widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
       }
 
+
       widget.appState.housingState.history.add(FlSpot(
-        DateTime.now().millisecondsSinceEpoch.toDouble(),
-        widget.appState.housingState.outerTemp,
+        DateTime.now().millisecondsSinceEpoch.toDouble(), widget.appState.housingState.outerTemp,
       ));
     });
   }

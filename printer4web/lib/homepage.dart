@@ -64,6 +64,8 @@ class HomePage extends StatefulWidget {
       src=$mjpgStreamAddress
       height="100%"
       width="100%"
+      // Adjust brightness and contrast.
+      // style="filter: brightness(1) contrast(1)"
       onError="reloadImage()"
       onLoad="showImage()"
     />
