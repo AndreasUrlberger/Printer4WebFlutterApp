@@ -251,5 +251,3 @@ class _PrinterInformationState extends State<PrinterInformation> {
     }
   }
 }
-
-// Custom ImageProvider that enables access to files requiring digest authentication. It essentially downloads the image using a digest authentication client and then converts it in a form that is displayable in the app.
