@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 
 import 'package:printer4web/auth/keys.dart';
 import 'package:printer4web/printer_settings.dart';
@@ -11,12 +12,24 @@ void _logParsingFailure(
   Object error,
   StackTrace stackTrace,
 ) {
-  print(
+  developer.log(
     'PrusaLink response parsing failed for $endpoint '
-    '(HTTP ${response.statusCode}): $error',
+    '(HTTP ${response.statusCode}): $error\n'
+    '--- server response ---\n${response.body}\n'
+    '--- end server response ---',
+    name: 'printer4web.prusalink',
+    error: error,
+    stackTrace: stackTrace,
   );
-  print('PrusaLink raw response: ${response.body}');
-  print(stackTrace);
+}
+
+void _logUnexpectedResponse(String endpoint, http.Response response) {
+  developer.log(
+    'PrusaLink request returned HTTP ${response.statusCode} for $endpoint\n'
+    '--- server response ---\n${response.body}\n'
+    '--- end server response ---',
+    name: 'printer4web.prusalink.response',
+  );
 }
 
 Future<PrusalinkPrinterData?> makePrinterRequest() async {
@@ -47,12 +60,19 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
             stackTrace,
           );
         }
+      } else {
+        _logUnexpectedResponse(prusalinkPrinterApi, response);
       }
 
       return data;
     },
     onError: (error, stack) {
-      print("Http api request error: $error, stack: $stack");
+      developer.log(
+        'HTTP request failed: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+        stackTrace: stack,
+      );
     },
   );
 }
@@ -85,12 +105,19 @@ Future<PrusalinkJobData?> makeJobRequest() async {
             stackTrace,
           );
         }
+      } else {
+        _logUnexpectedResponse(prusalinkJobApi, response);
       }
 
       return data;
     },
     onError: (error, stack) {
-      print("Http api request error: $error, stack: $stack");
+      developer.log(
+        'HTTP request failed: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+        stackTrace: stack,
+      );
     },
   );
 }
@@ -111,7 +138,12 @@ Future<bool> makePreheatNozzleRequest(int targetTemp) async {
       return (200 <= response.statusCode && response.statusCode <= 299);
     },
     onError: (error, stack) {
-      print("Http api request to preheat printer nozzle: $error, stack: $stack");
+      developer.log(
+        'HTTP request to preheat printer nozzle failed: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+        stackTrace: stack,
+      );
       return false;
     },
   );
@@ -133,7 +165,12 @@ Future<bool> makePreheatHeatbedRequest(int targetTemp) async {
       return (200 <= response.statusCode && response.statusCode <= 299);
     },
     onError: (error, stack) {
-      print("Http api request to preheat printer heatbed: $error, stack: $stack");
+      developer.log(
+        'HTTP request to preheat printer heatbed failed: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+        stackTrace: stack,
+      );
       return false;
     },
   );

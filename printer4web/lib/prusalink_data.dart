@@ -91,8 +91,8 @@ class Heatbed {
 // }
 
 class PrusalinkJobData {
-  Job job;
-  Progress progress;
+  Job? job;
+  Progress? progress;
   String state;
 
   PrusalinkJobData({
@@ -102,20 +102,19 @@ class PrusalinkJobData {
   });
 
   factory PrusalinkJobData.fromJson(Map<String, dynamic> json) {
+    final jobJson = (json["job"] as Map?)?.cast<String, dynamic>();
+    final progressJson = (json["progress"] as Map?)?.cast<String, dynamic>();
+
     return PrusalinkJobData(
-      job: Job.fromJson(
-        (json["job"] as Map?)?.cast<String, dynamic>() ?? {},
-      ),
-      progress: Progress.fromJson(
-        (json["progress"] as Map?)?.cast<String, dynamic>() ?? {},
-      ),
+      job: jobJson == null ? null : Job.fromJson(jobJson),
+      progress: progressJson == null ? null : Progress.fromJson(progressJson),
       state: json["state"] as String? ?? "Unknown",
     );
   }
 
   @override
   String toString() {
-    return 'Job: ${job.toString()}, Progress: ${progress.toString()}, State: $state';
+    return 'Job: $job, Progress: $progress, State: $state';
   }
 }
 
