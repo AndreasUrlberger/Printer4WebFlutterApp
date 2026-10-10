@@ -25,7 +25,7 @@ class MyAppState extends State<MyApp> {
         // Define the default brightness and colors.
         brightness: Brightness.dark,
         primaryColor: colorPrimary,
-        tabBarTheme: const TabBarTheme(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
+        tabBarTheme: const TabBarThemeData(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
         switchTheme: SwitchThemeData(
             thumbColor: MaterialStateProperty.resolveWith((states) =>
             states.contains(MaterialState.selected) ? colorPrimary : null),
@@ -38,7 +38,7 @@ class MyAppState extends State<MyApp> {
         // Define the default brightness and colors.
         brightness: Brightness.light,
         primaryColor: colorPrimary,
-        tabBarTheme: const TabBarTheme(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
+        tabBarTheme: const TabBarThemeData(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
       ),
       themeMode: ThemeMode.system,
       home: PrinterTabs(),

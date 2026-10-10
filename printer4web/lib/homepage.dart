@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/printer_settings.dart';
-import 'package:webviewx/webviewx.dart';
 
 import 'app_config.dart';
 
@@ -208,11 +207,12 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget mjpgView() {
-    return WebViewX(
-      width: 99999,
-      height: 99999,
-      initialContent: widget.html,
-      initialSourceType: SourceType.html,
+    return Image.network(
+      mjpgStreamAddress,
+      fit: BoxFit.contain,
+      errorBuilder: (context, error, stackTrace) => const Center(
+        child: Icon(Icons.videocam_off, color: Colors.white54),
+      ),
     );
   }
 
