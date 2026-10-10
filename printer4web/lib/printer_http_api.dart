@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 
 class PrinterHttpApi {
   static Future<PrinterStatus> getStatus() async {
-    final Uri url = Uri.http(serviceControllerAddress, "statusRequest");
+    final Uri url =
+        Uri.http(currentPrinterSettings.serviceControllerAddress, "statusRequest");
     final StatusRequest statusRequest = StatusRequest.create();
     statusRequest.includePrintConfigs = true;
 
@@ -17,7 +18,8 @@ class PrinterHttpApi {
 
   static Future<PrinterStatus> addPrintConfig(
       String configName, int configTemp) async {
-    final Uri url = Uri.http(serviceControllerAddress, "addPrintConfig");
+    final Uri url =
+        Uri.http(currentPrinterSettings.serviceControllerAddress, "addPrintConfig");
     AddPrintConfig addPrintConfig = AddPrintConfig.create();
     PrintConfig printConfig = PrintConfig.create();
     printConfig.temperature = configTemp;
@@ -31,7 +33,8 @@ class PrinterHttpApi {
 
   static Future<PrinterStatus> removePrintConfig(
       String configName, int configTemp) async {
-    final Uri url = Uri.http(serviceControllerAddress, "removePrintConfig");
+    final Uri url =
+        Uri.http(currentPrinterSettings.serviceControllerAddress, "removePrintConfig");
     final RemovePrintConfig removePrintConfig = RemovePrintConfig.create();
     PrintConfig printConfig = PrintConfig.create();
     printConfig.temperature = configTemp;
@@ -46,7 +49,8 @@ class PrinterHttpApi {
 
   static Future<PrinterStatus> changeTempControl(
       bool isActive, String? configName, int? configTemp) async {
-    final Uri url = Uri.http(serviceControllerAddress, "changeTempControl");
+    final Uri url =
+        Uri.http(currentPrinterSettings.serviceControllerAddress, "changeTempControl");
     final ChangeTempControl changeTempControl = ChangeTempControl.create();
     changeTempControl.isActive = isActive;
     if (configName != null && configTemp != null) {
@@ -64,7 +68,8 @@ class PrinterHttpApi {
 
   // Requests the printer to shutdown.
   static Future<void> shutdown() async {
-    final Uri url = Uri.http(serviceControllerAddress, "shutdown");
+    final Uri url =
+        Uri.http(currentPrinterSettings.serviceControllerAddress, "shutdown");
     await http.post(url).timeout(const Duration(seconds: 10));
   }
 }

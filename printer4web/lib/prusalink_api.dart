@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 
-import 'package:printer4web/auth/keys.dart';
 import 'package:printer4web/printer_settings.dart';
 import 'package:printer4web/prusalink_data.dart';
 import 'package:http/http.dart' as http;
@@ -33,10 +32,12 @@ void _logUnexpectedResponse(String endpoint, http.Response response) {
 }
 
 Future<PrusalinkPrinterData?> makePrinterRequest() async {
-  final Uri uri = Uri.http(corsProxyAddress, prusalinkPrinterApi);
+  final Uri uri = Uri.http(
+      currentPrinterSettings.corsProxyAddress,
+      currentPrinterSettings.prusalinkPrinterApi);
   final client = http.Client();
   final headers = {
-    'x-api-key': prusalinkPassword,
+    'x-api-key': currentPrinterSettings.prusalinkPassword,
     "x-requested-with": "XMLHttpRequest"
   };
 
@@ -45,7 +46,7 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
         .get(uri, headers: headers)
         .timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) {
-      _logUnexpectedResponse(prusalinkPrinterApi, response);
+      _logUnexpectedResponse(currentPrinterSettings.prusalinkPrinterApi, response);
       return null;
     }
 
@@ -56,7 +57,8 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
       }
       return PrusalinkPrinterData.fromJson(jsonData.cast<String, dynamic>());
     } catch (error, stackTrace) {
-      _logParsingFailure(prusalinkPrinterApi, response, error, stackTrace);
+      _logParsingFailure(
+          currentPrinterSettings.prusalinkPrinterApi, response, error, stackTrace);
       return null;
     }
   } catch (error, stackTrace) {
@@ -74,9 +76,11 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
 
 Future<PrusalinkJobData?> makeJobRequest() async {
   final client = http.Client();
-  final Uri uri = Uri.http(corsProxyAddress, prusalinkJobApi);
+  final Uri uri = Uri.http(
+      currentPrinterSettings.corsProxyAddress,
+      currentPrinterSettings.prusalinkJobApi);
   final headers = {
-    'x-api-key': prusalinkPassword,
+    'x-api-key': currentPrinterSettings.prusalinkPassword,
     "x-requested-with": "XMLHttpRequest"
   };
 
@@ -85,7 +89,7 @@ Future<PrusalinkJobData?> makeJobRequest() async {
         .get(uri, headers: headers)
         .timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) {
-      _logUnexpectedResponse(prusalinkJobApi, response);
+      _logUnexpectedResponse(currentPrinterSettings.prusalinkJobApi, response);
       return null;
     }
 
@@ -96,7 +100,8 @@ Future<PrusalinkJobData?> makeJobRequest() async {
       }
       return PrusalinkJobData.fromJson(jsonData.cast<String, dynamic>());
     } catch (error, stackTrace) {
-      _logParsingFailure(prusalinkJobApi, response, error, stackTrace);
+      _logParsingFailure(
+          currentPrinterSettings.prusalinkJobApi, response, error, stackTrace);
       return null;
     }
   } catch (error, stackTrace) {
@@ -114,10 +119,11 @@ Future<PrusalinkJobData?> makeJobRequest() async {
 
 // Request to preheat printer nozzle.
 Future<bool> makePreheatNozzleRequest(int targetTemp) async {
-  final Uri uri = Uri.http(corsProxyAddress, prusalinkPreheatNozzleApi);
+  final Uri uri = Uri.http(currentPrinterSettings.corsProxyAddress,
+      currentPrinterSettings.prusalinkPreheatNozzleApi);
   final client = http.Client();
   final headers = {
-    'x-api-key': prusalinkPassword,
+    'x-api-key': currentPrinterSettings.prusalinkPassword,
     "x-requested-with": "XMLHttpRequest",
     "Content-Type": "application/json"
   };
@@ -142,10 +148,11 @@ Future<bool> makePreheatNozzleRequest(int targetTemp) async {
 
 // Request to preheat printer heatbed.
 Future<bool> makePreheatHeatbedRequest(int targetTemp) async {
-  final Uri uri = Uri.http(corsProxyAddress, prusalinkPreheatBedApi);
+  final Uri uri = Uri.http(currentPrinterSettings.corsProxyAddress,
+      currentPrinterSettings.prusalinkPreheatBedApi);
   final client = http.Client();
   final headers = {
-    'x-api-key': prusalinkPassword,
+    'x-api-key': currentPrinterSettings.prusalinkPassword,
     "x-requested-with": "XMLHttpRequest",
     "Content-Type": "application/json"
   };

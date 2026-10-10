@@ -249,7 +249,7 @@ class _PrinterInformationState extends State<PrinterInformation> {
     final theme = Theme.of(context);
     try {
       await launch(
-        prusalinkAddress,
+        currentPrinterSettings.prusalinkAddress,
         customTabsOption: CustomTabsOption(
           toolbarColor: theme.primaryColor,
           enableDefaultShare: true,

@@ -13,7 +13,7 @@ class HomePage extends StatefulWidget {
   Function pressDebugButton;
 
   final DateFormat dateFormat = DateFormat('kk:mm');
-  final String html = """
+  String get html => """
 <html>
   <head>
     <style>
@@ -61,7 +61,7 @@ class HomePage extends StatefulWidget {
     <div class="loader"></div>
     <img
       id="image"
-      src=$mjpgStreamAddress
+      src=${currentPrinterSettings.mjpgStreamAddress}
       height="100%"
       width="100%"
       // Adjust brightness and contrast.
@@ -85,7 +85,7 @@ class HomePage extends StatefulWidget {
         var image = document.getElementById('image');
         image.style.display = 'none';
         setTimeout(function () {
-          image.src = "$mjpgStreamAddress?" + new Date().getTime();
+          image.src = "${currentPrinterSettings.mjpgStreamAddress}?" + new Date().getTime();
         }, $mjpgImageReloadIntervalMS);
       }
 
@@ -164,7 +164,8 @@ class _HomePageState extends State<HomePage>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(widget.homePageState.printName ?? defaultPrintName),
-              Text("${((widget.homePageState.printProgress ?? 0) * 100).toInt()}%")
+              Text(
+                  "${((widget.homePageState.printProgress ?? 0) * 100).toInt()}%")
             ],
           ),
           const SizedBox(
@@ -208,7 +209,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget mjpgView() {
-    return createMjpgView(mjpgStreamAddress);
+    return createMjpgView(currentPrinterSettings.mjpgStreamAddress);
   }
 
   @override
