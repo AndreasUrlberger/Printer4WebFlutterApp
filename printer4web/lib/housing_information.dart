@@ -6,10 +6,16 @@ import 'package:printer4web/printer_http_api.dart';
 import 'app_config.dart';
 import 'printer_chart.dart';
 
+enum PrinterConnectionStatus {
+  checking,
+  connected,
+  disconnected,
+}
+
 class HousingInformation extends StatefulWidget {
   HousingInformation({super.key, required this.housingState});
 
-  AppHousingState housingState;
+  final AppHousingState housingState;
   final tempPattern = RegExp("^\\d+([\\.\\,]\\d+?)?\$");
 
   // Regex pattern for any non empty string with at least one character and at most 20 characters. The string must contain at least one non-whitespace character.
@@ -40,8 +46,7 @@ class PrintProfile {
 }
 
 class AppHousingState {
-  bool connectionStatus = false;
-  bool shutdownRequested = false;
+  PrinterConnectionStatus connectionStatus = PrinterConnectionStatus.checking;
   double innerTempTop = 0;
   double innerTempBottom = 0;
   double outerTemp = 0;
@@ -60,24 +65,88 @@ class AppHousingState {
   PrintProfile? selectedProfile;
 }
 
+class ConnectionStatusIndicator extends StatelessWidget {
+  const ConnectionStatusIndicator({
+    super.key,
+    required this.status,
+  });
+
+  final PrinterConnectionStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+    final ({
+      Color backgroundColor,
+      Color borderColor,
+      Color foregroundColor,
+      String label,
+    }) statusStyle = switch (status) {
+      PrinterConnectionStatus.connected => (
+          backgroundColor:
+              isDark ? const Color(0xFF1B4D2B) : const Color(0xFFE0F2E5),
+          borderColor:
+              isDark ? const Color(0xFF6DD58C) : const Color(0xFF2E7D32),
+          foregroundColor:
+              isDark ? const Color(0xFFB8F5C8) : const Color(0xFF1B5E20),
+          label: "Verbunden",
+        ),
+      PrinterConnectionStatus.disconnected => (
+          backgroundColor:
+              isDark ? const Color(0xFF5A2020) : const Color(0xFFFDE7E7),
+          borderColor:
+              isDark ? const Color(0xFFFF8A80) : const Color(0xFFC62828),
+          foregroundColor:
+              isDark ? const Color(0xFFFFCDD2) : const Color(0xFFB71C1C),
+          label: "Nicht verbunden",
+        ),
+      PrinterConnectionStatus.checking => (
+          backgroundColor:
+              isDark ? const Color(0xFF594512) : const Color(0xFFFFF4D6),
+          borderColor:
+              isDark ? const Color(0xFFFFD54F) : const Color(0xFFB26A00),
+          foregroundColor:
+              isDark ? const Color(0xFFFFE7A3) : const Color(0xFF8A4B00),
+          label: "Verbindung wird geprüft",
+        ),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: statusStyle.backgroundColor,
+        border: Border.all(color: statusStyle.borderColor),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 9,
+            height: 9,
+            decoration: BoxDecoration(
+              color: statusStyle.foregroundColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 7),
+          Text(
+            statusStyle.label,
+            style: TextStyle(
+              color: statusStyle.foregroundColor,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _HousingInformationState extends State<HousingInformation> {
   final tempInputController = TextEditingController();
   final nameInputController = TextEditingController();
-
-  void onStatusSwitchChanged(bool value) {
-    if (value) {
-      return;
-    }
-
-    setState(() {
-      widget.housingState
-        ..shutdownRequested = true
-        ..connectionStatus = false;
-    });
-    PrinterHttpApi.shutdown().catchError((error) {
-      print("Failed to shut down printer with error: $error");
-    });
-  }
 
   void onTempControlChanged(bool value) {
     PrinterHttpApi.changeTempControl(
@@ -152,9 +221,8 @@ class _HousingInformationState extends State<HousingInformation> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Text("Status"),
-            Switch(
-              value: widget.housingState.connectionStatus,
-              onChanged: onStatusSwitchChanged,
+            ConnectionStatusIndicator(
+              status: widget.housingState.connectionStatus,
             ),
           ],
         ),

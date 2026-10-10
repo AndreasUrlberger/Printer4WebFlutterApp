@@ -5,13 +5,19 @@ import 'package:intl/intl.dart';
 import 'package:printer4web/app_config.dart';
 import 'package:printer4web/printer_settings.dart';
 import 'package:printer4web/prusalink_api.dart';
+import 'housing_information.dart';
 import 'printer_chart.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 
 class PrinterInformation extends StatefulWidget {
-  PrinterInformation({super.key, required this.printerInformationState});
+  PrinterInformation({
+    super.key,
+    required this.printerInformationState,
+    required this.housingState,
+  });
 
-  AppPrinterInformationState printerInformationState;
+  final AppPrinterInformationState printerInformationState;
+  final AppHousingState housingState;
   final DateFormat dateFormat = DateFormat('kk:mm');
 
   @override
@@ -43,7 +49,10 @@ class _PrinterInformationState extends State<PrinterInformation> {
 
   void onPreheatClicked() {
     // Wait for the result of both calls and then show a toast message.
-    Future.wait([makePreheatHeatbedRequest(heatbedPreheatTemp), makePreheatNozzleRequest(nozzlePreheatTemp)]).then((success) {
+    Future.wait([
+      makePreheatHeatbedRequest(heatbedPreheatTemp),
+      makePreheatNozzleRequest(nozzlePreheatTemp)
+    ]).then((success) {
       if (!success[0] || !success[1]) {
         print("Error preheating heatbed or nozzle");
         // Show failure message.
@@ -62,13 +71,10 @@ class _PrinterInformationState extends State<PrinterInformation> {
     });
   }
 
-  void onStatusSwitchChanged(bool value) {
-    // TODO Implement.
-  }
-
   void onCoolDownClicked() {
     // Wait for the result of both calls and then show a toast message.
-    Future.wait([makePreheatHeatbedRequest(0), makePreheatNozzleRequest(0)]).then((success) {
+    Future.wait([makePreheatHeatbedRequest(0), makePreheatNozzleRequest(0)])
+        .then((success) {
       if (!success[0] || !success[1]) {
         print("Error cooling down heatbed or nozzle");
         // Show failure message.
@@ -93,7 +99,9 @@ class _PrinterInformationState extends State<PrinterInformation> {
 
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
+      child: size.aspectRatio > wideLayoutThreshold
+          ? horizontalLayout(context)
+          : verticalLayout(context),
     );
   }
 
@@ -104,7 +112,9 @@ class _PrinterInformationState extends State<PrinterInformation> {
         mainUI(context),
         const SizedBox(height: 16),
         chartUI(context),
-        ElevatedButton(onPressed: () => _launchPrusalinkSite(context), child: const Text("PrusaLink")),
+        ElevatedButton(
+            onPressed: () => _launchPrusalinkSite(context),
+            child: const Text("PrusaLink")),
       ],
     );
   }
@@ -114,10 +124,14 @@ class _PrinterInformationState extends State<PrinterInformation> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Expanded(
-            child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          mainUI(context),
-          ElevatedButton(onPressed: () => _launchPrusalinkSite(context), child: const Text("PrusaLink")),
-        ])),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+              mainUI(context),
+              ElevatedButton(
+                  onPressed: () => _launchPrusalinkSite(context),
+                  child: const Text("PrusaLink")),
+            ])),
         const SizedBox(width: 32),
         Expanded(child: chartUI(context)),
       ],
@@ -131,7 +145,12 @@ class _PrinterInformationState extends State<PrinterInformation> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [const Text("Status"), Switch(value: widget.printerInformationState.prusalinkStatus, onChanged: onStatusSwitchChanged)],
+          children: [
+            const Text("Status"),
+            ConnectionStatusIndicator(
+              status: widget.housingState.connectionStatus,
+            ),
+          ],
         ),
         const Divider(
           color: Colors.grey,
@@ -143,10 +162,12 @@ class _PrinterInformationState extends State<PrinterInformation> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 8),
-                Text(widget.printerInformationState.printName ?? defaultPrintName),
+                Text(widget.printerInformationState.printName ??
+                    defaultPrintName),
                 const SizedBox(height: 8),
                 if (widget.printerInformationState.printFinishedAt != null)
-                  Text("Fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.printerInformationState.printFinishedAt ?? 0)))}"),
+                  Text(
+                      "Fertig um ${widget.dateFormat.format(DateTime.now().add(Duration(milliseconds: widget.printerInformationState.printFinishedAt ?? 0)))}"),
                 const SizedBox(height: 8),
               ],
             ),
@@ -165,7 +186,8 @@ class _PrinterInformationState extends State<PrinterInformation> {
           children: <Widget>[
             Expanded(
               child: Center(
-                child: Row( mainAxisAlignment: MainAxisAlignment.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Icon(Printer4Web.nozzle),
                     Text(
@@ -177,7 +199,8 @@ class _PrinterInformationState extends State<PrinterInformation> {
             const SizedBox(width: 16),
             Expanded(
               child: Center(
-                  child: Row(mainAxisAlignment: MainAxisAlignment.center,
+                  child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Printer4Web.heatplate),
                   Text(
@@ -216,7 +239,10 @@ class _PrinterInformationState extends State<PrinterInformation> {
   Widget chartUI(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: AspectRatio(aspectRatio: 16 / 9, child: PrinterChart(history: widget.printerInformationState.temperatureHistory)));
+        child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: PrinterChart(
+                history: widget.printerInformationState.temperatureHistory)));
   }
 
   Future<void> _launchPrusalinkSite(BuildContext context) async {

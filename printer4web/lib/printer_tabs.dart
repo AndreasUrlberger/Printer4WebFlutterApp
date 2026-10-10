@@ -102,7 +102,8 @@ class _PrinterTabsState extends State<PrinterTabs>
               homePageState: widget.appState.homePageState,
               pressDebugButton: prusaDataRequest),
           PrinterInformation(
-              printerInformationState: widget.appState.printerInformationState),
+              printerInformationState: widget.appState.printerInformationState,
+              housingState: widget.appState.housingState),
           HousingInformation(housingState: widget.appState.housingState),
         ],
       ),
@@ -134,7 +135,8 @@ class _PrinterTabsState extends State<PrinterTabs>
               _statusFailuresBeforeDisconnect &&
           mounted) {
         setState(() {
-          widget.appState.housingState.connectionStatus = false;
+          widget.appState.housingState.connectionStatus =
+              PrinterConnectionStatus.disconnected;
         });
       }
     }).whenComplete(() {
@@ -252,7 +254,7 @@ class _PrinterTabsState extends State<PrinterTabs>
       widget.appState.housingState
         ..tempOverallWant = printerStatus.currentPrintConfig.temperature / 1000
         ..isTempControlActive = printerStatus.isTempControlActive
-        ..connectionStatus = !widget.appState.housingState.shutdownRequested
+        ..connectionStatus = PrinterConnectionStatus.connected
         ..fanSpeed = printerStatus.fanSpeed;
 
       if (printerStatus.temperatureOutside != 0) {
