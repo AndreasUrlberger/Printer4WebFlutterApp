@@ -26,11 +26,13 @@ class PrinterTabs extends StatefulWidget {
 
 class PrinterAppState {
   AppHomePageState homePageState = AppHomePageState();
-  AppPrinterInformationState printerInformationState = AppPrinterInformationState();
+  AppPrinterInformationState printerInformationState =
+      AppPrinterInformationState();
   AppHousingState housingState = AppHousingState();
 }
 
-class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, TickerProviderStateMixin {
+class _PrinterTabsState extends State<PrinterTabs>
+    with WidgetsBindingObserver, TickerProviderStateMixin {
   AppLifecycleState state = AppLifecycleState.resumed;
   late final List<String> _tabNames;
   late Timer _timer;
@@ -39,6 +41,8 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
   int _selectedTabIndex = 0;
   bool _isPrinterDataRequestInFlight = false;
   bool _isStatusRequestInFlight = false;
+  int _consecutiveStatusRequestFailures = 0;
+  static const int _statusFailuresBeforeDisconnect = 3;
 
   @override
   void initState() {
@@ -94,8 +98,11 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
       body: TabBarView(
         controller: _controller,
         children: [
-          HomePage(homePageState: widget.appState.homePageState, pressDebugButton: prusaDataRequest),
-          PrinterInformation(printerInformationState: widget.appState.printerInformationState),
+          HomePage(
+              homePageState: widget.appState.homePageState,
+              pressDebugButton: prusaDataRequest),
+          PrinterInformation(
+              printerInformationState: widget.appState.printerInformationState),
           HousingInformation(housingState: widget.appState.housingState),
         ],
       ),
@@ -118,12 +125,18 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
     _isStatusRequestInFlight = true;
 
     PrinterHttpApi.getStatus().then((value) {
+      _consecutiveStatusRequestFailures = 0;
       processStatusMessage(value);
     }, onError: (error) {
       print("status request error: $error");
-      setState(() {
-        widget.appState.housingState.connectionStatus = false;
-      });
+      _consecutiveStatusRequestFailures++;
+      if (_consecutiveStatusRequestFailures >=
+              _statusFailuresBeforeDisconnect &&
+          mounted) {
+        setState(() {
+          widget.appState.housingState.connectionStatus = false;
+        });
+      }
     }).whenComplete(() {
       _isStatusRequestInFlight = false;
     });
@@ -152,21 +165,26 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
         }
         // Just use the same data again.
         setState(() {
-          while (widget.appState.printerInformationState.temperatureHistory.length > PrinterTabs.numHistoryElements) {
-            widget.appState.printerInformationState.temperatureHistory.removeAt(0);
+          while (widget
+                  .appState.printerInformationState.temperatureHistory.length >
+              PrinterTabs.numHistoryElements) {
+            widget.appState.printerInformationState.temperatureHistory
+                .removeAt(0);
           }
 
           if (prusalinkData != null &&
               widget.appState.printerInformationState.nozzleTempHave != null) {
             final List<FlSpot> history =
                 widget.appState.printerInformationState.temperatureHistory;
-            final double timestamp = DateTime.now().millisecondsSinceEpoch.toDouble();
+            final double timestamp =
+                DateTime.now().millisecondsSinceEpoch.toDouble();
             final double nextTimestamp =
                 history.isEmpty || timestamp > history.last.x
                     ? timestamp
                     : history.last.x + 1;
-            widget.appState.printerInformationState.temperatureHistory
-                .add(FlSpot(nextTimestamp, widget.appState.printerInformationState.nozzleTempHave!));
+            widget.appState.printerInformationState.temperatureHistory.add(
+                FlSpot(nextTimestamp,
+                    widget.appState.printerInformationState.nozzleTempHave!));
           }
         });
       },
@@ -182,7 +200,8 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
                 prusalinkData.job != null &&
                 prusalinkData.progress != null) {
               final String? printName = prusalinkData.job!.file.name;
-              int endIndex = (printName?.lastIndexOf(RegExp(r"\.bgcode")) ?? 1) - 1;
+              int endIndex =
+                  (printName?.lastIndexOf(RegExp(r"\.bgcode")) ?? 1) - 1;
               if (endIndex < 0) {
                 endIndex = printName!.length;
               }
@@ -220,11 +239,14 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
   }
 
   void processStatusMessage(PrinterStatus printerStatus) {
-    while (widget.appState.housingState.history.length > PrinterTabs.numHistoryElements) {
+    while (widget.appState.housingState.history.length >
+        PrinterTabs.numHistoryElements) {
       widget.appState.housingState.history.removeAt(0);
     }
 
-
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       widget.appState.housingState
@@ -235,37 +257,43 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
 
       if (printerStatus.temperatureOutside != 0) {
         // Only update the outer temperature if the new one is not 0.
-        widget.appState.housingState.outerTemp = printerStatus.temperatureOutside / 1000;
+        widget.appState.housingState.outerTemp =
+            printerStatus.temperatureOutside / 1000;
       }
 
       if (printerStatus.temperatureInsideTop != 0) {
-        widget.appState.housingState.innerTempTop = printerStatus.temperatureInsideTop / 1000;
+        widget.appState.housingState.innerTempTop =
+            printerStatus.temperatureInsideTop / 1000;
       }
 
       if (printerStatus.temperatureInsideBottom != 0) {
-        widget.appState.housingState.innerTempBottom = printerStatus.temperatureInsideBottom / 1000;
-        widget.appState.housingState.tempOverallHave = printerStatus.temperatureInsideBottom / 1000;
+        widget.appState.housingState.innerTempBottom =
+            printerStatus.temperatureInsideBottom / 1000;
+        widget.appState.housingState.tempOverallHave =
+            printerStatus.temperatureInsideBottom / 1000;
       }
 
       widget.appState.housingState.printProfiles.clear();
       for (var config in printerStatus.printConfigs) {
-        widget.appState.housingState.printProfiles.add(PrintProfile(config.name, config.temperature));
+        widget.appState.housingState.printProfiles
+            .add(PrintProfile(config.name, config.temperature));
       }
 
       if (printerStatus.currentPrintConfig.name.isEmpty) {
         widget.appState.housingState.selectedProfile = null;
       } else {
-        widget.appState.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
+        widget.appState.housingState.selectedProfile = PrintProfile(
+            printerStatus.currentPrintConfig.name,
+            printerStatus.currentPrintConfig.temperature);
       }
-
 
       final List<FlSpot> history = widget.appState.housingState.history;
       final double timestamp = DateTime.now().millisecondsSinceEpoch.toDouble();
-      final double nextTimestamp =
-          history.isEmpty || timestamp > history.last.x
-              ? timestamp
-              : history.last.x + 1;
-      history.add(FlSpot(nextTimestamp, widget.appState.housingState.outerTemp));
+      final double nextTimestamp = history.isEmpty || timestamp > history.last.x
+          ? timestamp
+          : history.last.x + 1;
+      history
+          .add(FlSpot(nextTimestamp, widget.appState.housingState.outerTemp));
     });
   }
 

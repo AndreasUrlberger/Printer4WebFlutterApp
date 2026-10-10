@@ -137,6 +137,7 @@ class _PrinterChartState extends State<PrinterChart> {
           show: true,
         ),
       ),
+      duration: Duration.zero,
     );
   }
 

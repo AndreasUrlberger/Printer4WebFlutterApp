@@ -31,23 +31,38 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
   @override
   void initState() {
     super.initState();
-    selectedIndex = widget.housingState.printProfiles.indexWhere((profile) => profile == widget.housingState.selectedProfile);
+    selectedIndex = widget.housingState.printProfiles.indexWhere(
+        (profile) => profile == widget.housingState.selectedProfile);
 
-    tempInputValid = widget.tempPattern.hasMatch(widget.tempInputController.text);
-    nameInputValid = widget.namePattern.hasMatch(widget.nameInputController.text);
+    tempInputValid =
+        widget.tempPattern.hasMatch(widget.tempInputController.text);
+    nameInputValid =
+        widget.namePattern.hasMatch(widget.nameInputController.text);
   }
 
   bool onAddPrintConfig() {
-    if (widget.namePattern.hasMatch(widget.nameInputController.text) && widget.tempPattern.hasMatch(widget.tempInputController.text)) {
-      PrinterHttpApi.addPrintConfig(widget.nameInputController.text, (double.parse(widget.tempInputController.text.replaceAll(",", ".")) * 1000).round()).then(
+    if (widget.namePattern.hasMatch(widget.nameInputController.text) &&
+        widget.tempPattern.hasMatch(widget.tempInputController.text)) {
+      PrinterHttpApi.addPrintConfig(
+              widget.nameInputController.text,
+              (double.parse(widget.tempInputController.text
+                          .replaceAll(",", ".")) *
+                      1000)
+                  .round())
+          .then(
         (printerStatus) {
           setState(() {
-            widget.housingState.printProfiles = printerStatus.printConfigs.map((config) => PrintProfile(config.name, config.temperature)).toList(growable: true);
-            widget.housingState.selectedProfile = PrintProfile(printerStatus.currentPrintConfig.name, printerStatus.currentPrintConfig.temperature);
+            widget.housingState.printProfiles = printerStatus.printConfigs
+                .map((config) => PrintProfile(config.name, config.temperature))
+                .toList(growable: true);
+            widget.housingState.selectedProfile = PrintProfile(
+                printerStatus.currentPrintConfig.name,
+                printerStatus.currentPrintConfig.temperature);
           });
         },
         onError: (error) {
-          print("Failed to send add print config request to printer with error: $error");
+          print(
+              "Failed to send add print config request to printer with error: $error");
         },
       );
       widget.nameInputController.clear();
@@ -63,19 +78,28 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
       return;
     }
 
-    PrinterHttpApi.changeTempControl(widget.housingState.isTempControlActive, value.name, value.temperature).then((response) {
+    PrinterHttpApi.changeTempControl(widget.housingState.isTempControlActive,
+            value.name, value.temperature)
+        .then((response) {
       setState(() {
         widget.housingState.isTempControlActive = response.isTempControlActive;
-        widget.housingState.selectedProfile = PrintProfile(response.currentPrintConfig.name, response.currentPrintConfig.temperature);
+        widget.housingState.selectedProfile = PrintProfile(
+            response.currentPrintConfig.name,
+            response.currentPrintConfig.temperature);
       });
     });
   }
 
   void onRemoveProfile(PrintProfile profile) {
-    PrinterHttpApi.removePrintConfig(profile.name, profile.temperature).then((response) {
+    PrinterHttpApi.removePrintConfig(profile.name, profile.temperature)
+        .then((response) {
       setState(() {
-        widget.housingState.printProfiles = response.printConfigs.map((config) => PrintProfile(config.name, config.temperature)).toList(growable: true);
-        widget.housingState.selectedProfile = PrintProfile(response.currentPrintConfig.name, response.currentPrintConfig.temperature);
+        widget.housingState.printProfiles = response.printConfigs
+            .map((config) => PrintProfile(config.name, config.temperature))
+            .toList(growable: true);
+        widget.housingState.selectedProfile = PrintProfile(
+            response.currentPrintConfig.name,
+            response.currentPrintConfig.temperature);
       });
     });
   }
@@ -83,8 +107,10 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
   @override
   Widget build(BuildContext context) {
     // The list in the dialog shows the name and temperature of each profile provided in the profiles parameter.
-    bool tempInputValid = widget.tempPattern.hasMatch(widget.tempInputController.text);
-    bool nameInputValid = widget.namePattern.hasMatch(widget.nameInputController.text);
+    bool tempInputValid =
+        widget.tempPattern.hasMatch(widget.tempInputController.text);
+    bool nameInputValid =
+        widget.namePattern.hasMatch(widget.nameInputController.text);
 
     return Dialog(
       child: Padding(
@@ -95,7 +121,11 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
           children: [
             Row(
               children: [
-                Text(isExpanded ? "Druckerprofil hinzufügen" : "Druckerprofil auswählen", style: const TextStyle(fontSize: 20)),
+                Text(
+                    isExpanded
+                        ? "Druckerprofil hinzufügen"
+                        : "Druckerprofil auswählen",
+                    style: const TextStyle(fontSize: 20)),
                 const Spacer(),
                 IconButton(
                   icon: Icon(isExpanded ? Icons.remove : Icons.add),
@@ -124,22 +154,24 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
                   ),
                   TextButton(
                       // disable button if text is not a valid temperature
-                      onPressed: ((tempInputValid && nameInputValid) || !isExpanded)
-                          ? () {
-                              if (isExpanded) {
-                                // Add new profile
-                                if (onAddPrintConfig()) {
-                                  Navigator.pop(context);
+                      onPressed:
+                          ((tempInputValid && nameInputValid) || !isExpanded)
+                              ? () {
+                                  if (isExpanded) {
+                                    // Add new profile
+                                    if (onAddPrintConfig()) {
+                                      Navigator.pop(context);
+                                    }
+                                  } else {
+                                    // Select profile
+                                    if (selectedIndex != null) {
+                                      onProfileChanged(widget.housingState
+                                          .printProfiles[selectedIndex!]);
+                                    }
+                                    Navigator.pop(context);
+                                  }
                                 }
-                              } else {
-                                // Select profile
-                                if (selectedIndex != null) {
-                                  onProfileChanged(widget.housingState.printProfiles[selectedIndex!]);
-                                }
-                                Navigator.pop(context);
-                              }
-                            }
-                          : null,
+                              : null,
                       child: Text(isExpanded ? "Hinzufügen" : "Bestätigen")),
                 ]),
               ],
@@ -177,11 +209,15 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
                     },
                     decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: nameInputValid ? Colors.green : Colors.red),
+                        borderSide: BorderSide(
+                            color: nameInputValid ? Colors.green : Colors.red),
                       ),
                       // Disable the counter text as it is affecting the widget height.
                       counterText: "",
-                      border: OutlineInputBorder(borderSide: BorderSide(color: nameInputValid ? Colors.green : Colors.red)),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color:
+                                  nameInputValid ? Colors.green : Colors.red)),
                       hintText: "Name",
                     ),
                   ),
@@ -202,9 +238,13 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
                     },
                     decoration: InputDecoration(
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: tempInputValid ? Colors.green : Colors.red),
+                        borderSide: BorderSide(
+                            color: tempInputValid ? Colors.green : Colors.red),
                       ),
-                      border: OutlineInputBorder(borderSide: BorderSide(color: tempInputValid ? Colors.green : Colors.red)),
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color:
+                                  tempInputValid ? Colors.green : Colors.red)),
                       hintText: "Temperatur",
                     ),
                   ),
@@ -240,11 +280,18 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
                     children: [
                       Icon(
                         Icons.check,
-                        color: (index == selectedIndex) ? Colors.black : Colors.transparent,
+                        color: (index == selectedIndex)
+                            ? Theme.of(context).colorScheme.onSurface
+                            : Colors.transparent,
                       ),
                       const SizedBox(width: 8),
-                      Expanded(child: Text(widget.housingState.printProfiles[index].name)),
-                      Text((widget.housingState.printProfiles[index].temperature / 1000).toString()),
+                      Expanded(
+                          child: Text(
+                              widget.housingState.printProfiles[index].name)),
+                      Text((widget.housingState.printProfiles[index]
+                                  .temperature /
+                              1000)
+                          .toString()),
                     ],
                   ),
                 ),

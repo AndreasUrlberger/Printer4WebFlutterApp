@@ -27,7 +27,11 @@ class PrintProfile {
 
   @override
   bool operator ==(Object other) {
-    final bool output = identical(this, other) || other is PrintProfile && runtimeType == other.runtimeType && name == other.name && temperature == other.temperature;
+    final bool output = identical(this, other) ||
+        other is PrintProfile &&
+            runtimeType == other.runtimeType &&
+            name == other.name &&
+            temperature == other.temperature;
     return output;
   }
 
@@ -59,21 +63,21 @@ class _HousingInformationState extends State<HousingInformation> {
   final tempInputController = TextEditingController();
   final nameInputController = TextEditingController();
 
-  void onStatusSwitchChanged(bool value) {
-    setState(() {
-      PrinterHttpApi.shutdown();
-    });
-  }
-
   void onTempControlChanged(bool value) {
-    PrinterHttpApi.changeTempControl(value, widget.housingState.selectedProfile?.name, widget.housingState.selectedProfile?.temperature).then(
+    PrinterHttpApi.changeTempControl(
+            value,
+            widget.housingState.selectedProfile?.name,
+            widget.housingState.selectedProfile?.temperature)
+        .then(
       (printerStatus) {
         setState(() {
-          widget.housingState.isTempControlActive = printerStatus.isTempControlActive;
+          widget.housingState.isTempControlActive =
+              printerStatus.isTempControlActive;
         });
       },
       onError: (error) {
-        print("Failed to send temp control change to printer with error: $error");
+        print(
+            "Failed to send temp control change to printer with error: $error");
       },
     );
   }
@@ -90,7 +94,9 @@ class _HousingInformationState extends State<HousingInformation> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: queryData.size.aspectRatio > wideLayoutThreshold ? horizontalLayout(context) : verticalLayout(context),
+      child: queryData.size.aspectRatio > wideLayoutThreshold
+          ? horizontalLayout(context)
+          : verticalLayout(context),
     );
   }
 
@@ -128,7 +134,13 @@ class _HousingInformationState extends State<HousingInformation> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [const Text("Status"), Switch(value: widget.housingState.connectionStatus, onChanged: onStatusSwitchChanged)],
+          children: [
+            const Text("Status"),
+            Switch(
+              value: widget.housingState.connectionStatus,
+              onChanged: null,
+            ),
+          ],
         ),
         const Divider(
           color: Colors.grey,
@@ -170,7 +182,12 @@ class _HousingInformationState extends State<HousingInformation> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: [const Text("Temperaturregelung"), Switch(value: widget.housingState.isTempControlActive, onChanged: onTempControlChanged)],
+          children: [
+            const Text("Temperaturregelung"),
+            Switch(
+                value: widget.housingState.isTempControlActive,
+                onChanged: onTempControlChanged)
+          ],
         ),
         const Divider(
           color: Colors.grey,
@@ -181,20 +198,29 @@ class _HousingInformationState extends State<HousingInformation> {
           children: [
             const Text("Profil:"),
             const Spacer(),
-            ElevatedButton(style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 0)),
               onPressed: () {
                 showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return EditProfilesDialog(housingState: widget.housingState);
+                      return EditProfilesDialog(
+                          housingState: widget.housingState);
                     });
               },
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(widget.housingState.selectedProfile?.name ?? "Kein Profil ausgewählt", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(
+                      widget.housingState.selectedProfile?.name ??
+                          "Kein Profil ausgewählt",
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(width: 8),
-                  const Icon(size: 21,
+                  const Icon(
+                    size: 21,
                     Icons.edit,
                   ),
                 ],
@@ -210,14 +236,16 @@ class _HousingInformationState extends State<HousingInformation> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.heat_pump),
-                Text("${(widget.housingState.fanSpeed * 100).round().clamp(0, 100)}%"),
+                Text(
+                    "${(widget.housingState.fanSpeed * 100).round().clamp(0, 100)}%"),
               ],
             ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Icon(Icons.square_outlined),
-                Text("${widget.housingState.tempOverallHave.round()}/${widget.housingState.tempOverallWant.round()}°C"),
+                Text(
+                    "${widget.housingState.tempOverallHave.round()}/${widget.housingState.tempOverallWant.round()}°C"),
               ],
             )
           ],
@@ -227,6 +255,10 @@ class _HousingInformationState extends State<HousingInformation> {
   }
 
   Widget chartLayout(BuildContext context) {
-    return Padding(padding: const EdgeInsets.symmetric(vertical: 16), child: AspectRatio(aspectRatio: 16 / 9, child: PrinterChart(history: widget.housingState.history)));
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: AspectRatio(
+            aspectRatio: 16 / 9,
+            child: PrinterChart(history: widget.housingState.history)));
   }
 }

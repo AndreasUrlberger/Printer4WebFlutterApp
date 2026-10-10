@@ -40,41 +40,36 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
     "x-requested-with": "XMLHttpRequest"
   };
 
-  return client.get(uri, headers: headers).then(
-        (response) {
-      PrusalinkPrinterData? data;
-      if (response.statusCode == 200) {
-        try {
-          final jsonData = json.decode(response.body);
-          if (jsonData is! Map) {
-            throw const FormatException('Expected a JSON object');
-          }
-          data = PrusalinkPrinterData.fromJson(
-            jsonData.cast<String, dynamic>(),
-          );
-        } catch (error, stackTrace) {
-          _logParsingFailure(
-            prusalinkPrinterApi,
-            response,
-            error,
-            stackTrace,
-          );
-        }
-      } else {
-        _logUnexpectedResponse(prusalinkPrinterApi, response);
-      }
+  try {
+    final response = await client
+        .get(uri, headers: headers)
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != 200) {
+      _logUnexpectedResponse(prusalinkPrinterApi, response);
+      return null;
+    }
 
-      return data;
-    },
-    onError: (error, stack) {
-      developer.log(
-        'HTTP request failed: $error',
-        name: 'printer4web.prusalink',
-        error: error,
-        stackTrace: stack,
-      );
-    },
-  );
+    try {
+      final jsonData = json.decode(response.body);
+      if (jsonData is! Map) {
+        throw const FormatException('Expected a JSON object');
+      }
+      return PrusalinkPrinterData.fromJson(jsonData.cast<String, dynamic>());
+    } catch (error, stackTrace) {
+      _logParsingFailure(prusalinkPrinterApi, response, error, stackTrace);
+      return null;
+    }
+  } catch (error, stackTrace) {
+    developer.log(
+      'HTTP request failed: $error',
+      name: 'printer4web.prusalink',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    return null;
+  } finally {
+    client.close();
+  }
 }
 
 Future<PrusalinkJobData?> makeJobRequest() async {
@@ -85,41 +80,36 @@ Future<PrusalinkJobData?> makeJobRequest() async {
     "x-requested-with": "XMLHttpRequest"
   };
 
-  return client.get(uri, headers: headers).then(
-        (response) {
-      PrusalinkJobData? data;
-      if (response.statusCode == 200) {
-        try {
-          final jsonData = json.decode(response.body);
-          if (jsonData is! Map) {
-            throw const FormatException('Expected a JSON object');
-          }
-          data = PrusalinkJobData.fromJson(
-            jsonData.cast<String, dynamic>(),
-          );
-        } catch (error, stackTrace) {
-          _logParsingFailure(
-            prusalinkJobApi,
-            response,
-            error,
-            stackTrace,
-          );
-        }
-      } else {
-        _logUnexpectedResponse(prusalinkJobApi, response);
-      }
+  try {
+    final response = await client
+        .get(uri, headers: headers)
+        .timeout(const Duration(seconds: 10));
+    if (response.statusCode != 200) {
+      _logUnexpectedResponse(prusalinkJobApi, response);
+      return null;
+    }
 
-      return data;
-    },
-    onError: (error, stack) {
-      developer.log(
-        'HTTP request failed: $error',
-        name: 'printer4web.prusalink',
-        error: error,
-        stackTrace: stack,
-      );
-    },
-  );
+    try {
+      final jsonData = json.decode(response.body);
+      if (jsonData is! Map) {
+        throw const FormatException('Expected a JSON object');
+      }
+      return PrusalinkJobData.fromJson(jsonData.cast<String, dynamic>());
+    } catch (error, stackTrace) {
+      _logParsingFailure(prusalinkJobApi, response, error, stackTrace);
+      return null;
+    }
+  } catch (error, stackTrace) {
+    developer.log(
+      'HTTP request failed: $error',
+      name: 'printer4web.prusalink',
+      error: error,
+      stackTrace: stackTrace,
+    );
+    return null;
+  } finally {
+    client.close();
+  }
 }
 
 // Request to preheat printer nozzle.
@@ -129,12 +119,13 @@ Future<bool> makePreheatNozzleRequest(int targetTemp) async {
   final headers = {
     'x-api-key': prusalinkPassword,
     "x-requested-with": "XMLHttpRequest",
-    "Content-Type":"application/json"
+    "Content-Type": "application/json"
   };
-  final String json = "{\"command\":\"target\",\"targets\":{\"tool0\":$targetTemp}}";
+  final String json =
+      "{\"command\":\"target\",\"targets\":{\"tool0\":$targetTemp}}";
 
   return client.post(uri, headers: headers, body: json).then(
-        (response) {
+    (response) {
       return (200 <= response.statusCode && response.statusCode <= 299);
     },
     onError: (error, stack) {
@@ -156,12 +147,12 @@ Future<bool> makePreheatHeatbedRequest(int targetTemp) async {
   final headers = {
     'x-api-key': prusalinkPassword,
     "x-requested-with": "XMLHttpRequest",
-    "Content-Type":"application/json"
+    "Content-Type": "application/json"
   };
   final String json = "{\"command\": \"target\",\"target\": $targetTemp}";
 
   return client.post(uri, headers: headers, body: json).then(
-        (response) {
+    (response) {
       return (200 <= response.statusCode && response.statusCode <= 299);
     },
     onError: (error, stack) {
