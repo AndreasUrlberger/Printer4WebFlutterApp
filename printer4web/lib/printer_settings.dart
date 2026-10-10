@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'auth/keys.dart';
+import 'auth/keys.dart' as auth_keys;
 
 const String defaultPrinterIpAddress = '192.168.178.150';
 const String defaultPrusalinkIpAddress = '192.168.178.129';
@@ -42,8 +42,8 @@ class PrinterSettings {
       serviceControllerPort: defaultServiceControllerPort,
       corsProxyPort: defaultCorsProxyPort,
       mjpgStreamerPort: defaultMjpgStreamerPort,
-      prusalinkUsername: prusalinkUsername,
-      prusalinkPassword: prusalinkPassword,
+      prusalinkUsername: auth_keys.prusalinkUsername,
+      prusalinkPassword: auth_keys.prusalinkPassword,
     );
   }
 
@@ -51,7 +51,8 @@ class PrinterSettings {
     final preferences = await SharedPreferences.getInstance();
     final defaults = PrinterSettings.defaults();
     return PrinterSettings(
-      printerHost: preferences.getString(_printerHostKey) ?? defaults.printerHost,
+      printerHost:
+          preferences.getString(_printerHostKey) ?? defaults.printerHost,
       prusalinkHost:
           preferences.getString(_prusalinkHostKey) ?? defaults.prusalinkHost,
       serviceControllerPort: preferences.getInt(_serviceControllerPortKey) ??
@@ -107,16 +108,14 @@ class PrinterSettings {
     prusalinkPassword = defaults.prusalinkPassword;
   }
 
-  String get serviceControllerAddress =>
-      '$printerHost:$serviceControllerPort';
+  String get serviceControllerAddress => '$printerHost:$serviceControllerPort';
   String get corsProxyAddress => '$printerHost:$corsProxyPort';
   String get mjpgStreamAddress =>
       'http://$printerHost:$mjpgStreamerPort/?action=stream';
   String get prusalinkAddress => 'http://$prusalinkHost';
   String get prusalinkPrinterApi => '$prusalinkAddress/api/printer';
   String get prusalinkJobApi => '$prusalinkAddress/api/job';
-  String get prusalinkPreheatNozzleApi =>
-      '$prusalinkAddress/api/printer/tool';
+  String get prusalinkPreheatNozzleApi => '$prusalinkAddress/api/printer/tool';
   String get prusalinkPreheatBedApi => '$prusalinkAddress/api/printer/bed';
 }
 
