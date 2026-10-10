@@ -6,11 +6,9 @@ import 'package:printer4web/mjpg_view.dart';
 import 'app_config.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage(
-      {super.key, required this.homePageState, required this.pressDebugButton});
+  HomePage({super.key, required this.homePageState});
 
-  AppHomePageState homePageState;
-  Function pressDebugButton;
+  final AppHomePageState homePageState;
 
   final DateFormat dateFormat = DateFormat('kk:mm');
   String get html => """
@@ -117,6 +115,7 @@ class _HomePageState extends State<HomePage>
     with AutomaticKeepAliveClientMixin {
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final Size size = MediaQuery.of(context).size;
 
     return Padding(

@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:printer4web/printer_http_api.dart';
 
@@ -14,7 +15,7 @@ class EditProfilesDialog extends StatefulWidget {
   final tempInputController = TextEditingController();
   final nameInputController = TextEditingController();
 
-  AppHousingState housingState;
+  final AppHousingState housingState;
 
   @override
   EditProfilesDialogState createState() => EditProfilesDialogState();
@@ -51,7 +52,10 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
                   .round())
           .then(
         (printerStatus) {
-          setState(() {
+            if (!mounted) {
+              return;
+            }
+            setState(() {
             widget.housingState.printProfiles = printerStatus.printConfigs
                 .map((config) => PrintProfile(config.name, config.temperature))
                 .toList(growable: true);
@@ -61,8 +65,11 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
           });
         },
         onError: (error) {
-          print(
-              "Failed to send add print config request to printer with error: $error");
+          developer.log(
+            'Failed to add print config: $error',
+            name: 'printer4web.housing',
+            error: error,
+          );
         },
       );
       widget.nameInputController.clear();
@@ -81,6 +88,9 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
     PrinterHttpApi.changeTempControl(widget.housingState.isTempControlActive,
             value.name, value.temperature)
         .then((response) {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         widget.housingState.isTempControlActive = response.isTempControlActive;
         widget.housingState.selectedProfile = PrintProfile(
@@ -93,6 +103,9 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
   void onRemoveProfile(PrintProfile profile) {
     PrinterHttpApi.removePrintConfig(profile.name, profile.temperature)
         .then((response) {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         widget.housingState.printProfiles = response.printConfigs
             .map((config) => PrintProfile(config.name, config.temperature))
@@ -102,6 +115,13 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
             response.currentPrintConfig.temperature);
       });
     });
+  }
+
+  @override
+  void dispose() {
+    widget.tempInputController.dispose();
+    widget.nameInputController.dispose();
+    super.dispose();
   }
 
   @override
@@ -271,7 +291,6 @@ class EditProfilesDialogState extends State<EditProfilesDialog> {
               Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    print("tapped");
                     setState(() {
                       selectedIndex = index;
                     });

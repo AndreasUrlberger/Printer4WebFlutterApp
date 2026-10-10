@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -113,8 +114,7 @@ class _PrinterTabsState extends State<PrinterTabs>
         controller: _controller,
         children: [
           HomePage(
-              homePageState: widget.appState.homePageState,
-              pressDebugButton: prusaDataRequest),
+              homePageState: widget.appState.homePageState),
           PrinterInformation(
               printerInformationState: widget.appState.printerInformationState,
               housingState: widget.appState.housingState),
@@ -140,10 +140,17 @@ class _PrinterTabsState extends State<PrinterTabs>
     _isStatusRequestInFlight = true;
 
     PrinterHttpApi.getStatus().then((value) {
+      if (!mounted) {
+        return;
+      }
       _consecutiveStatusRequestFailures = 0;
       processStatusMessage(value);
     }, onError: (error) {
-      print("status request error: $error");
+      developer.log(
+        'Status request failed: $error',
+        name: 'printer4web.status',
+        error: error,
+      );
       _consecutiveStatusRequestFailures++;
       if (_consecutiveStatusRequestFailures >=
               _statusFailuresBeforeDisconnect &&
@@ -166,6 +173,9 @@ class _PrinterTabsState extends State<PrinterTabs>
 
     makePrinterRequest().then(
       (prusalinkData) {
+        if (!mounted) {
+          return;
+        }
         if (prusalinkData != null) {
           setState(() {
             widget.appState.printerInformationState
@@ -177,7 +187,10 @@ class _PrinterTabsState extends State<PrinterTabs>
           });
         } else {
           widget.appState.printerInformationState.prusalinkStatus = false;
-          print("Prusalink printer data could not get fetched.");
+          developer.log(
+            'PrusaLink printer data could not be fetched.',
+            name: 'printer4web.prusalink',
+          );
         }
         // Just use the same data again.
         setState(() {
@@ -210,6 +223,9 @@ class _PrinterTabsState extends State<PrinterTabs>
 
     makeJobRequest().then(
       (prusalinkData) {
+        if (!mounted) {
+          return;
+        }
         if (prusalinkData != null) {
           setState(() {
             if (prusalinkData.state == "Printing" &&
@@ -243,7 +259,10 @@ class _PrinterTabsState extends State<PrinterTabs>
             }
           });
         } else {
-          print("Prusalink job data could not get fetched.");
+          developer.log(
+            'PrusaLink job data could not be fetched.',
+            name: 'printer4web.prusalink',
+          );
           widget.appState.printerInformationState
             ..estimatedPrintTime = null
             ..prusalinkStatus = false
@@ -255,13 +274,13 @@ class _PrinterTabsState extends State<PrinterTabs>
   }
 
   void processStatusMessage(PrinterStatus printerStatus) {
+    if (!mounted) {
+      return;
+    }
+
     while (widget.appState.housingState.history.length >
         PrinterTabs.numHistoryElements) {
       widget.appState.housingState.history.removeAt(0);
-    }
-
-    if (!mounted) {
-      return;
     }
 
     setState(() {
@@ -320,6 +339,7 @@ class _PrinterTabsState extends State<PrinterTabs>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _timer.cancel();
     super.dispose();

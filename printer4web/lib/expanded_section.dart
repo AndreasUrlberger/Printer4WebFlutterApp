@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 // Source: https://stackoverflow.com/a/54173729
 class ExpandedSection extends StatefulWidget {
@@ -58,7 +58,7 @@ class ExpandedSectionState extends State<ExpandedSection> with SingleTickerProvi
   @override
   Widget build(BuildContext context) {
     return SizeTransition(
-        axisAlignment: 1.0,
+        alignment: Alignment.bottomCenter,
         sizeFactor: animation,
         child: widget.child
     );

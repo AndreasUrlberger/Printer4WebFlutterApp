@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/material.dart';
+import 'package:web/web.dart' as web;
 
 int _nextViewId = 0;
 
@@ -17,7 +17,7 @@ class _MjpgView extends StatefulWidget {
 
 class _MjpgViewState extends State<_MjpgView> {
   late final String _viewType;
-  late final html.ImageElement _image;
+  late final web.HTMLImageElement _image;
   Timer? _retryTimer;
   int _retryCount = 0;
 
@@ -25,7 +25,7 @@ class _MjpgViewState extends State<_MjpgView> {
   void initState() {
     super.initState();
     _viewType = 'mjpg-view-${_nextViewId++}';
-    _image = html.ImageElement()
+    _image = web.HTMLImageElement()
       ..style.width = '100%'
       ..style.height = '100%'
       ..style.objectFit = 'contain'

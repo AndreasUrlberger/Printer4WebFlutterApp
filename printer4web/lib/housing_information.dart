@@ -1,4 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:printer4web/edit_profiles_dialog.dart';
 import 'package:printer4web/printer_http_api.dart';
@@ -155,14 +157,20 @@ class _HousingInformationState extends State<HousingInformation> {
             widget.housingState.selectedProfile?.temperature)
         .then(
       (printerStatus) {
+        if (!mounted) {
+          return;
+        }
         setState(() {
           widget.housingState.isTempControlActive =
               printerStatus.isTempControlActive;
         });
       },
       onError: (error) {
-        print(
-            "Failed to send temp control change to printer with error: $error");
+        developer.log(
+          'Failed to send temp control change: $error',
+          name: 'printer4web.housing',
+          error: error,
+        );
       },
     );
   }
@@ -170,6 +178,7 @@ class _HousingInformationState extends State<HousingInformation> {
   @override
   void dispose() {
     tempInputController.dispose();
+    nameInputController.dispose();
     super.dispose();
   }
 

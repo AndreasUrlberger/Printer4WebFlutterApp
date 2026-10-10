@@ -89,7 +89,7 @@ class _PrinterChartState extends State<PrinterChart> {
   @override
   Widget build(BuildContext context) {
     if (widget.history.isEmpty) {
-      return Container();
+      return const SizedBox.shrink();
     }
 
     // The rolling history is updated in place while this chart is animated.
@@ -113,8 +113,8 @@ class _PrinterChartState extends State<PrinterChart> {
         maxY: upperBound,
         minX: points.first.x,
         maxX: points.last.x,
-        lineTouchData: LineTouchData(enabled: false),
-        clipData: FlClipData.all(),
+        lineTouchData: const LineTouchData(enabled: false),
+        clipData: const FlClipData.all(),
         gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: interval),
         borderData: FlBorderData(show: false),
         lineBarsData: [
@@ -131,9 +131,9 @@ class _PrinterChartState extends State<PrinterChart> {
               reservedSize: 35,
             ),
           ),
-          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           show: true,
         ),
       ),
@@ -144,11 +144,11 @@ class _PrinterChartState extends State<PrinterChart> {
   LineChartBarData sinLine(List<FlSpot> points) {
     return LineChartBarData(
       spots: points,
-      dotData: FlDotData(
+      dotData: const FlDotData(
         show: false,
       ),
       gradient: LinearGradient(
-        colors: [Theme.of(context).primaryColor.withOpacity(0), Theme.of(context).primaryColor],
+        colors: [Theme.of(context).primaryColor.withValues(alpha: 0), Theme.of(context).primaryColor],
         stops: const [0.0, 0.2],
       ),
       barWidth: 4,

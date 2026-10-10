@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
@@ -54,7 +56,13 @@ class _PrinterInformationState extends State<PrinterInformation> {
       makePreheatNozzleRequest(nozzlePreheatTemp)
     ]).then((success) {
       if (!success[0] || !success[1]) {
-        print("Error preheating heatbed or nozzle");
+        developer.log(
+          'Error preheating heatbed or nozzle',
+          name: 'printer4web.prusalink',
+        );
+        if (!mounted) {
+          return;
+        }
         // Show failure message.
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Failed preheating heatbed or nozzle"),
@@ -62,7 +70,14 @@ class _PrinterInformationState extends State<PrinterInformation> {
         ));
       }
     }, onError: (error) {
-      print("Error preheating heatbed or nozzle: $error");
+      developer.log(
+        'Error preheating heatbed or nozzle: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+      );
+      if (!mounted) {
+        return;
+      }
       // Show failure message.
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Failed preheating heatbed or nozzle"),
@@ -76,7 +91,13 @@ class _PrinterInformationState extends State<PrinterInformation> {
     Future.wait([makePreheatHeatbedRequest(0), makePreheatNozzleRequest(0)])
         .then((success) {
       if (!success[0] || !success[1]) {
-        print("Error cooling down heatbed or nozzle");
+        developer.log(
+          'Error cooling down heatbed or nozzle',
+          name: 'printer4web.prusalink',
+        );
+        if (!mounted) {
+          return;
+        }
         // Show failure message.
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Failed cooling down heatbed or nozzle"),
@@ -84,7 +105,14 @@ class _PrinterInformationState extends State<PrinterInformation> {
         ));
       }
     }, onError: (error) {
-      print("Error cooling down heatbed or nozzle: $error");
+      developer.log(
+        'Error cooling down heatbed or nozzle: $error',
+        name: 'printer4web.prusalink',
+        error: error,
+      );
+      if (!mounted) {
+        return;
+      }
       // Show failure message.
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Failed cooling down heatbed or nozzle"),

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/app_config.dart';
 import 'package:printer4web/printer_settings.dart';
@@ -40,10 +39,10 @@ class MyAppState extends State<MyApp> {
             indicator: UnderlineTabIndicator(
                 borderSide: BorderSide(color: colorPrimary, width: 4))),
         switchTheme: SwitchThemeData(
-            thumbColor: MaterialStateProperty.resolveWith((states) =>
-                states.contains(MaterialState.selected) ? colorPrimary : null),
-            trackColor: MaterialStateProperty.resolveWith((states) =>
-                states.contains(MaterialState.selected) ? colorPrimary : null)),
+            thumbColor: WidgetStateProperty.resolveWith((states) =>
+                states.contains(WidgetState.selected) ? colorPrimary : null),
+            trackColor: WidgetStateProperty.resolveWith((states) =>
+                states.contains(WidgetState.selected) ? colorPrimary : null)),
       ),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: colorPrimary),
