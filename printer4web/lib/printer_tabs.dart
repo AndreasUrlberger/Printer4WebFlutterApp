@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/printer_4_web_icons.dart';
 import 'package:printer4web/printer_http_api.dart';
@@ -9,6 +8,8 @@ import 'package:printer4web/proto/printer_data.pb.dart';
 import 'homepage.dart';
 import 'printer_information.dart';
 import 'housing_information.dart';
+import 'printer_settings.dart';
+import 'settings_page.dart';
 
 import 'prusalink_api.dart';
 
@@ -67,14 +68,27 @@ class _PrinterTabsState extends State<PrinterTabs>
 
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
-
     return Scaffold(
-      appBar: (kIsWeb || size.aspectRatio <= 1)
-          ? AppBar(
-              title: Text(_appbarTitle.toString()),
-            )
-          : null,
+      appBar: AppBar(
+        title: Text(_appbarTitle.toString()),
+        actions: [
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings),
+            onPressed: () async {
+              final changed = await Navigator.of(context).push<bool>(
+                MaterialPageRoute(
+                  builder: (_) =>
+                      SettingsPage(settings: currentPrinterSettings),
+                ),
+              );
+              if (changed == true && mounted) {
+                setState(() {});
+              }
+            },
+          ),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedTabIndex,
         onTap: (index) {
