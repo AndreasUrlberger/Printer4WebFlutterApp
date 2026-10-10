@@ -5,6 +5,20 @@ import 'package:printer4web/printer_settings.dart';
 import 'package:printer4web/prusalink_data.dart';
 import 'package:http/http.dart' as http;
 
+void _logParsingFailure(
+  String endpoint,
+  http.Response response,
+  Object error,
+  StackTrace stackTrace,
+) {
+  print(
+    'PrusaLink response parsing failed for $endpoint '
+    '(HTTP ${response.statusCode}): $error',
+  );
+  print('PrusaLink raw response: ${response.body}');
+  print(stackTrace);
+}
+
 Future<PrusalinkPrinterData?> makePrinterRequest() async {
   final Uri uri = Uri.http(corsProxyAddress, prusalinkPrinterApi);
   final client = http.Client();
@@ -17,8 +31,22 @@ Future<PrusalinkPrinterData?> makePrinterRequest() async {
         (response) {
       PrusalinkPrinterData? data;
       if (response.statusCode == 200) {
-        var jsonData = json.decode(response.body);
-        data = PrusalinkPrinterData.fromJson(jsonData);
+        try {
+          final jsonData = json.decode(response.body);
+          if (jsonData is! Map) {
+            throw const FormatException('Expected a JSON object');
+          }
+          data = PrusalinkPrinterData.fromJson(
+            jsonData.cast<String, dynamic>(),
+          );
+        } catch (error, stackTrace) {
+          _logParsingFailure(
+            prusalinkPrinterApi,
+            response,
+            error,
+            stackTrace,
+          );
+        }
       }
 
       return data;
@@ -41,8 +69,22 @@ Future<PrusalinkJobData?> makeJobRequest() async {
         (response) {
       PrusalinkJobData? data;
       if (response.statusCode == 200) {
-        var jsonData = json.decode(response.body);
-        data = PrusalinkJobData.fromJson(jsonData);
+        try {
+          final jsonData = json.decode(response.body);
+          if (jsonData is! Map) {
+            throw const FormatException('Expected a JSON object');
+          }
+          data = PrusalinkJobData.fromJson(
+            jsonData.cast<String, dynamic>(),
+          );
+        } catch (error, stackTrace) {
+          _logParsingFailure(
+            prusalinkJobApi,
+            response,
+            error,
+            stackTrace,
+          );
+        }
       }
 
       return data;

@@ -6,7 +6,11 @@ class PrusalinkPrinterData {
   });
 
   factory PrusalinkPrinterData.fromJson(Map<String, dynamic> json) {
-    return PrusalinkPrinterData(temperature: Temperature.fromJson(json["temperature"]));
+    return PrusalinkPrinterData(
+      temperature: Temperature.fromJson(
+        (json["temperature"] as Map?)?.cast<String, dynamic>() ?? {},
+      ),
+    );
   }
 }
 
@@ -18,8 +22,12 @@ class Temperature {
 
   factory Temperature.fromJson(Map<String, dynamic> json) {
     return Temperature(
-      nozzle: Nozzle.fromJson(json["tool0"]),
-      heatbed: Heatbed.fromJson(json["bed"]),
+      nozzle: Nozzle.fromJson(
+        (json["tool0"] as Map?)?.cast<String, dynamic>() ?? {},
+      ),
+      heatbed: Heatbed.fromJson(
+        (json["bed"] as Map?)?.cast<String, dynamic>() ?? {},
+      ),
     );
   }
 }
@@ -32,8 +40,8 @@ class Nozzle {
 
   factory Nozzle.fromJson(Map<String, dynamic> json) {
     return Nozzle(
-      actualTemp: json["actual"] as double,
-      targetTemp: json["target"] as double,
+      actualTemp: (json["actual"] as num?)?.toDouble() ?? 0,
+      targetTemp: (json["target"] as num?)?.toDouble() ?? 0,
     );
   }
 }
@@ -46,8 +54,8 @@ class Heatbed {
 
   factory Heatbed.fromJson(Map<String, dynamic> json) {
     return Heatbed(
-      actualTemp: json["actual"] as double,
-      targetTemp: json["target"] as double,
+      actualTemp: (json["actual"] as num?)?.toDouble() ?? 0,
+      targetTemp: (json["target"] as num?)?.toDouble() ?? 0,
     );
   }
 }
@@ -95,9 +103,13 @@ class PrusalinkJobData {
 
   factory PrusalinkJobData.fromJson(Map<String, dynamic> json) {
     return PrusalinkJobData(
-      job: Job.fromJson(json["job"]),
-      progress: Progress.fromJson(json["progress"]),
-      state: json["state"] as String,
+      job: Job.fromJson(
+        (json["job"] as Map?)?.cast<String, dynamic>() ?? {},
+      ),
+      progress: Progress.fromJson(
+        (json["progress"] as Map?)?.cast<String, dynamic>() ?? {},
+      ),
+      state: json["state"] as String? ?? "Unknown",
     );
   }
 
