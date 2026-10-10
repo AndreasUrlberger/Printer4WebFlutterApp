@@ -63,8 +63,8 @@ class PrinterHttpApi {
   }
 
   // Requests the printer to shutdown.
-  static void shutdown() async {
+  static Future<void> shutdown() async {
     final Uri url = Uri.http(serviceControllerAddress, "shutdown");
-    await http.post(url);
+    await http.post(url).timeout(const Duration(seconds: 10));
   }
 }

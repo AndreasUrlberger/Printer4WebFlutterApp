@@ -252,7 +252,7 @@ class _PrinterTabsState extends State<PrinterTabs>
       widget.appState.housingState
         ..tempOverallWant = printerStatus.currentPrintConfig.temperature / 1000
         ..isTempControlActive = printerStatus.isTempControlActive
-        ..connectionStatus = true
+        ..connectionStatus = !widget.appState.housingState.shutdownRequested
         ..fanSpeed = printerStatus.fanSpeed;
 
       if (printerStatus.temperatureOutside != 0) {

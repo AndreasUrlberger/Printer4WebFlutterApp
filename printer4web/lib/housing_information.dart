@@ -41,6 +41,7 @@ class PrintProfile {
 
 class AppHousingState {
   bool connectionStatus = false;
+  bool shutdownRequested = false;
   double innerTempTop = 0;
   double innerTempBottom = 0;
   double outerTemp = 0;
@@ -62,6 +63,21 @@ class AppHousingState {
 class _HousingInformationState extends State<HousingInformation> {
   final tempInputController = TextEditingController();
   final nameInputController = TextEditingController();
+
+  void onStatusSwitchChanged(bool value) {
+    if (value) {
+      return;
+    }
+
+    setState(() {
+      widget.housingState
+        ..shutdownRequested = true
+        ..connectionStatus = false;
+    });
+    PrinterHttpApi.shutdown().catchError((error) {
+      print("Failed to shut down printer with error: $error");
+    });
+  }
 
   void onTempControlChanged(bool value) {
     PrinterHttpApi.changeTempControl(
@@ -138,7 +154,7 @@ class _HousingInformationState extends State<HousingInformation> {
             const Text("Status"),
             Switch(
               value: widget.housingState.connectionStatus,
-              onChanged: null,
+              onChanged: onStatusSwitchChanged,
             ),
           ],
         ),
