@@ -192,11 +192,10 @@ class _HousingInformationState extends State<HousingInformation> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(widget.housingState.selectedProfile?.name ?? "Kein Profil ausgewählt", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  Text(widget.housingState.selectedProfile?.name ?? "Kein Profil ausgewählt", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   const SizedBox(width: 8),
                   const Icon(size: 21,
                     Icons.edit,
-                    color: Colors.white,
                   ),
                 ],
               ),
