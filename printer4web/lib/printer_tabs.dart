@@ -36,6 +36,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
   late Timer _timer;
   late TabController _controller;
   late String _appbarTitle;
+  int _selectedTabIndex = 0;
 
   @override
   void initState() {
@@ -45,6 +46,7 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
     _controller = TabController(length: 3, vsync: this);
     _controller.addListener(() {
       setState(() {
+        _selectedTabIndex = _controller.index;
         _appbarTitle = _tabNames[_controller.index];
       });
     });
@@ -67,17 +69,23 @@ class _PrinterTabsState extends State<PrinterTabs> with WidgetsBindingObserver, 
               title: Text(_appbarTitle.toString()),
             )
           : null,
-      bottomNavigationBar: TabBar(
-        controller: _controller,
-        tabs: const <Tab>[
-          Tab(
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedTabIndex,
+        onTap: (index) {
+          _controller.animateTo(index);
+        },
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
+            label: 'Start',
           ),
-          Tab(
+          BottomNavigationBarItem(
             icon: Icon(Printer4Web.printer_3d),
+            label: 'Drucker',
           ),
-          Tab(
+          BottomNavigationBarItem(
             icon: Icon(Printer4Web.housing),
+            label: 'Gehäuse',
           ),
         ],
       ),
