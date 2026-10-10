@@ -92,11 +92,14 @@ class _PrinterChartState extends State<PrinterChart> {
       return Container();
     }
 
+    // The rolling history is updated in place while this chart is animated.
+    // Render a snapshot so a frame cannot observe a partially shifted list.
+    final List<FlSpot> points = List<FlSpot>.of(widget.history);
     const int minInterval = 1;
     const int wantedIntervals = 4;
 
-    final double lowest = widget.history.map((e) => e.y).reduce(min);
-    final double highest = widget.history.map((e) => e.y).reduce(max);
+    final double lowest = points.map((e) => e.y).reduce(min);
+    final double highest = points.map((e) => e.y).reduce(max);
 
     final bounds = getBounds(lowest, highest, minInterval, wantedIntervals);
     // Extend by a little to make sure the last interval is drawn.
@@ -108,14 +111,14 @@ class _PrinterChartState extends State<PrinterChart> {
       LineChartData(
         minY: lowerBound,
         maxY: upperBound,
-        minX: widget.history.first.x,
-        maxX: widget.history.last.x,
+        minX: points.first.x,
+        maxX: points.last.x,
         lineTouchData: LineTouchData(enabled: false),
         clipData: FlClipData.all(),
         gridData: FlGridData(show: true, drawVerticalLine: false, horizontalInterval: interval),
         borderData: FlBorderData(show: false),
         lineBarsData: [
-          sinLine(widget.history),
+          sinLine(points),
         ],
         titlesData: FlTitlesData(
           leftTitles: AxisTitles(
@@ -148,7 +151,7 @@ class _PrinterChartState extends State<PrinterChart> {
         stops: const [0.0, 0.2],
       ),
       barWidth: 4,
-      isCurved: true,
+      isCurved: false,
     );
   }
 }
