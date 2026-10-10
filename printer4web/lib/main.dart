@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:printer4web/app_config.dart';
+import 'package:printer4web/printer_settings.dart';
 import 'printer_tabs.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  currentPrinterSettings = await PrinterSettings.load();
   runApp(const MyApp());
 }
 
@@ -21,7 +24,8 @@ class MyAppState extends State<MyApp> {
       title: 'Flutter Printer4Web',
       debugShowCheckedModeBanner: false,
       darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: colorPrimary, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: colorPrimary, brightness: Brightness.dark),
         // Define the default brightness and colors.
         brightness: Brightness.dark,
         primaryColor: colorPrimary,
@@ -31,15 +35,17 @@ class MyAppState extends State<MyApp> {
             foregroundColor: Colors.white,
           ),
         ),
-        tabBarTheme: const TabBarThemeData(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
+        tabBarTheme: const TabBarThemeData(
+            labelColor: colorPrimary,
+            indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(color: colorPrimary, width: 4))),
         switchTheme: SwitchThemeData(
             thumbColor: MaterialStateProperty.resolveWith((states) =>
-            states.contains(MaterialState.selected) ? colorPrimary : null),
+                states.contains(MaterialState.selected) ? colorPrimary : null),
             trackColor: MaterialStateProperty.resolveWith((states) =>
-            states.contains(MaterialState.selected) ? colorPrimary : null)),
+                states.contains(MaterialState.selected) ? colorPrimary : null)),
       ),
-      theme:
-      ThemeData(
+      theme: ThemeData(
         colorScheme: ColorScheme.fromSwatch(primarySwatch: colorPrimary),
         // Define the default brightness and colors.
         brightness: Brightness.light,
@@ -50,7 +56,10 @@ class MyAppState extends State<MyApp> {
             foregroundColor: Colors.white,
           ),
         ),
-        tabBarTheme: const TabBarThemeData(labelColor: colorPrimary, indicator: UnderlineTabIndicator(borderSide: BorderSide(color: colorPrimary, width: 4))),
+        tabBarTheme: const TabBarThemeData(
+            labelColor: colorPrimary,
+            indicator: UnderlineTabIndicator(
+                borderSide: BorderSide(color: colorPrimary, width: 4))),
       ),
       themeMode: ThemeMode.system,
       home: PrinterTabs(),
