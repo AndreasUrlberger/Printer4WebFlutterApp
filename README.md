@@ -16,6 +16,18 @@ restarts, but `shared_preferences` does not provide cryptographic secret
 storage. Resetting settings removes the override and restores the built-in
 default.
 
+## Android builds
+
+The Android project uses Gradle 9.3.1 and Android Gradle Plugin 9.1.0. These
+versions support Java 25:
+
+```powershell
+flutter build apk
+```
+
+Flutter's Android plugin setup must remain declarative. Do not restore the
+deprecated `app_plugin_loader.gradle` or `flutter.gradle` script applications.
+
 # Libraries and Licenses
 
 The project makes use of the following libraries:
