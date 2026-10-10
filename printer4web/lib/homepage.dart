@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:printer4web/printer_settings.dart';
+import 'package:printer4web/mjpg_view.dart';
 
 import 'app_config.dart';
 
@@ -207,13 +208,7 @@ class _HomePageState extends State<HomePage>
   }
 
   Widget mjpgView() {
-    return Image.network(
-      mjpgStreamAddress,
-      fit: BoxFit.contain,
-      errorBuilder: (context, error, stackTrace) => const Center(
-        child: Icon(Icons.videocam_off, color: Colors.white54),
-      ),
-    );
+    return createMjpgView(mjpgStreamAddress);
   }
 
   @override
